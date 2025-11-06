@@ -1,35 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Chewbooty Guild Roster</title>
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body>
   <h1>Chewbooty Guild Roster</h1>
-  <table id="roster" class="display"></table>
 
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-  <script>
-    $(document).ready(function() {
-      Papa.parse("https://docs.google.com/spreadsheets/d/e/1QDcxbY9cQ16sJ7uucOf8eZYo5HLedH7_x7Wlg4-IZb8/pub?output=csv", {
-        download: true,
-        header: true,
-        complete: function(results) {
-          $('#roster').DataTable({
-            data: results.data,
-            columns: [
-              { data: "Player Name" },
-              { data: "GP" },
-              { data: "Player Skill Rating" }
-            ]
-          });
-        }
-      });
-    });
-  </script>
+  <!-- Direct Google Sheet Embed -->
+  <iframe 
+    src="https://docs.google.com/spreadsheets/d/e/1QDcxbY9cQ16sJ7uucOf8eZYo5HLedH7_x7Wlg4-IZb8/pubhtml?widget=true&amp;headers=false" 
+    width="100%" 
+    height="600">
+  </iframe>
 </body>
 </html>
