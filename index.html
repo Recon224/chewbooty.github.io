@@ -3,15 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <title>Chewbooty Guild Roster</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    h1 { margin-bottom: 1rem; }
+    table.dataTable { width: 100% !important; }
+  </style>
 </head>
 <body>
   <h1>Chewbooty Guild Roster</h1>
+  <table id="roster" class="display"></table>
 
-  <!-- Direct Google Sheet Embed -->
-  <iframe 
-    src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSm-wks9fKAgA2bucSnb-3WzUrSDpe--CYXR6KlAjAQ1Keti4BWL-PlXje9UwLjZh00eOFw3ZV64tae/pubhtml?widget=true&amp;headers=false" 
-    width="100%" 
-    height="600">
-  </iframe>
+  <!-- jQuery + DataTables + PapaParse -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      Papa.parse("https://docs.google.com/spreadsheets/d/e/2PACX-1vSm-wks9fKAgA2bucSnb-3WzUrSDpe--CYXR6KlAjAQ1Keti4BWL-PlXje9UwLjZh00eOFw3ZV64tae/pub?output=csv", {
+        download: true,
+        header: true,
+        complete: function(results) {
+          $('#roster').DataTable({
+            data: results.data,
+            paging: false,       // no pagination
+            scrollY: false,      // no scrollbars
+            searching: false,    // optional: disable search
+            info: false,         // hide "Showing X of Y entries"
+            columns: [
+              { data: "Player Name", title: "Player Name" },
+              { data: "GP", title: "GP" },
+              { data: "Player Skill Rating", title: "Player Skill Rating" }
+            ]
+          });
+        }
+      });
+    });
+  </script>
 </body>
 </html>
