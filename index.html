@@ -1,80 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>Chewbooty Guild Roster</title>
-  <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-    }
-    h1 {
-      margin-bottom: 1rem;
-    }
-  </style>
 </head>
 <body>
   <h1>Chewbooty Guild Roster</h1>
+  <table id="roster" class="display"></table>
 
-  <table id="roster" class="display" style="width:100%">
-    <thead>
-      <tr>
-        <th>Player Name</th>
-        <th>GP</th>
-        <th>Player Skill Rating</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Filled dynamically -->
-    </tbody>
-  </table>
-
-  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <!-- DataTables JS -->
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
-    async function loadRoster() {
-      try {
-        const response = await fetch("https://swgoh.gg/g/U48yJw7LRXmvqd2TKavaKA/");
-        const text = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, "text/html");
-
-        // Adjust selector if SWGOH.gg changes their markup
-        const rows = doc.querySelectorAll("table tbody tr");
-        const data = [];
-
-        rows.forEach(tr => {
-          const cells = tr.querySelectorAll("td");
-          if (cells.length >= 3) {
-            data.push({
-              name: cells[0].innerText.trim(),
-              gp: cells[1].innerText.trim(),
-              skill: cells[2].innerText.trim()
-            });
-          }
-        });
-
-        $('#roster').DataTable({
-          data: data,
-          columns: [
-            { data: "name", title: "Player Name" },
-            { data: "gp", title: "GP" },
-            { data: "skill", title: "Player Skill Rating" }
-          ]
-        });
-      } catch (err) {
-        console.error("Failed to fetch roster:", err);
-        document.querySelector("#roster tbody").innerHTML =
-          "<tr><td colspan='3'>Unable to load data directly from SWGOH.gg (CORS blocked). Use CSV fallback.</td></tr>";
-      }
-    }
-
-    loadRoster();
+    $(document).ready(function() {
+      Papa.parse("https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?output=csv", {
+        download: true,
+        header: true,
+        complete: function(results) {
+          $('#roster').DataTable({
+            data: results.data,
+            columns: [
+              { data: "Player Name" },
+              { data: "GP" },
+              { data: "Player Skill Rating" }
+            ]
+          });
+        }
+      });
+    });
   </script>
 </body>
 </html>
