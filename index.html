@@ -53,43 +53,50 @@
 const FILES = ["ChewbootyOld.csv","Chewbooty.csv"]; // always compare these two
 
 function parseCSV(csvText) {
-  const rows = csvText.trim().split(/\r?\n/).map(r => r.split(','));
-  return {header: rows[0], data: rows.slice(1)};
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < csvText.length; i++) {
+    const char = csvText[i];
+    const next = csvText[i + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      cell += '"'; // escaped quote
+      i++;
+    } else if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      row.push(cell.trim());
+      cell = '';
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (cell !== '' || row.length) {
+        row.push(cell.trim());
+        rows.push(row);
+        row = [];
+        cell = '';
+      }
+      if (char === '\r' && next === '\n') i++;
+    } else {
+      cell += char;
+    }
+  }
+  if (cell !== '' || row.length) {
+    row.push(cell.trim());
+    rows.push(row);
+  }
+
+  const header = rows[0].map(h => h.replace(/^"|"$/g,'').trim());
+  const data = rows.slice(1).map(r => r.map(c => c.replace(/^"|"$/g,'').trim()));
+  return { header, data };
 }
 
-function indexMap(header) {
-  const idx = {};
-  header.forEach((h,i)=>{ idx[h.trim()] = i; });
-  return idx;
-}
-
-function toNumber(v) {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function sumSlice(row,start,end) {
-  if (start<0 || end<0) return 0;
-  return row.slice(start,end+1).reduce((s,v)=>s+toNumber(v),0);
-}
-
-function linkForAlly(ally) {
-  if (!ally) return '';
-  const code = String(ally).trim();
-  return `<a href="https://swgoh.gg/p/${code}/" target="_blank" rel="noopener">${code}</a>`;
-}
-
-function formatDiff(diff,isScore=false) {
-  const cls = diff>0?'pos':diff<0?'neg':'zero';
-  const val = isScore?diff.toFixed(2):diff.toLocaleString();
-  return `<span class="${cls}">${diff>0?'+':''}${val}</span>`;
-}
-
-function findMatch(oldData,oldIdx,newRow,newIdx) {
-  const allyNew = newRow[newIdx['AllyCode']];
+function findMatch(oldData, oldIdx, newRow, newIdx) {
+  const allyNew = String(newRow[newIdx['AllyCode']]).trim();
   let match = null;
   if (allyNew) {
-    match = oldData.find(r => String(r[oldIdx['AllyCode']]).trim() === String(allyNew).trim());
+    match = oldData.find(r => String(r[oldIdx['AllyCode']]).trim() === allyNew);
   }
   if (!match) {
     const nameNew = newRow[newIdx['Name']]?.trim();
@@ -97,7 +104,6 @@ function findMatch(oldData,oldIdx,newRow,newIdx) {
   }
   return match;
 }
-
 function renderComparison(oldText,newText) {
   const oldParsed = parseCSV(oldText);
   const newParsed = parseCSV(newText);
