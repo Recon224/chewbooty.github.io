@@ -14,6 +14,9 @@
     a { color:#66ccff; text-decoration:none; }
     a:hover { text-decoration:underline; }
     .oldVal { color:#bbb; font-size:0.9em; }
+    .pos { color:#00ff00; font-weight:bold; }
+    .neg { color:#ff4444; font-weight:bold; }
+    .zero { color:#bbb; font-weight:bold; }
   </style>
 </head>
 <body>
@@ -23,14 +26,14 @@
       <tr>
         <th data-col="Name">Player</th>
         <th data-col="AllyCode">SWGOH.gg</th>
-        <th data-col="CharacterGP">Character GP (old)</th>
-        <th data-col="ShipGP">Ship GP (old)</th>
-        <th data-col="TotalGP">Total GP (old)</th>
+        <th data-col="CharacterGP">Character GP (old + Δ)</th>
+        <th data-col="ShipGP">Ship GP (old + Δ)</th>
+        <th data-col="TotalGP">Total GP (old + Δ)</th>
         <th data-col="LeagueId">League</th>
         <th data-col="SkillRating">Skill Rating</th>
-        <th data-col="ModScore">Mod Score (old)</th>
-        <th data-col="GearScore">Gear Score (old)</th>
-        <th data-col="TotalScore">Total Score (old)</th>
+        <th data-col="ModScore">Mod Score (old + Δ)</th>
+        <th data-col="GearScore">Gear Score (old + Δ)</th>
+        <th data-col="TotalScore">Total Score (old + Δ)</th>
         <th data-col="ZetaCount">Zetas</th>
         <th data-col="OmiCount">Omicrons</th>
         <th data-col="Speed20">Speed ≥20</th>
@@ -47,7 +50,8 @@ const FILES = ["ChewbootyOld.csv","Chewbooty.csv"]; // baseline vs current
 Promise.all(FILES.map(f => fetch(f).then(r=>r.text())))
   .then(([oldCSV,newCSV]) => {
     renderComparison(oldCSV,newCSV);
-  });
+  })
+  .catch(err => console.error("Error loading CSVs:", err));
 
 function parseCSV(csvText) {
   const rows = csvText.trim().split(/\r?\n/).map(r =>
@@ -55,6 +59,13 @@ function parseCSV(csvText) {
   );
   const header = rows[0].map(h => h.replace(/^"|"$/g,'').trim().replace(/^\uFEFF/, ''));
   return {header, data: rows.slice(1)};
+}
+
+function formatDiff(diff, isNumberFormatted = true) {
+  const cls = diff>0 ? 'pos' : diff<0 ? 'neg' : 'zero';
+  const val = isNumberFormatted ? Number(diff).toLocaleString() : diff;
+  const sign = diff>0 ? '+' : '';
+  return `<span class="${cls}">${sign}${val}</span>`;
 }
 
 function renderComparison(oldText,newText) {
@@ -82,13 +93,16 @@ function renderComparison(oldText,newText) {
   tbody.innerHTML = "";
 
   newer.data.forEach(row => {
-    const totalGP = (+row[colMap.CharGP]||0) + (+row[colMap.ShipGP]||0);
-
-    // match by AllyCode
     const newCode = (row[colMap.AllyCode]||"").replace(/^"|"$/g,'').trim();
     const oldRow = old.data.find(r => (r[old.header.indexOf("AllyCode")]||"").replace(/^"|"$/g,'').trim() === newCode);
 
-    // fallback old values
+    const newCharGP = (+row[colMap.CharGP]||0);
+    const newShipGP = (+row[colMap.ShipGP]||0);
+    const newTotalGP = newCharGP + newShipGP;
+    const newModScore = (+row[colMap.ModScore]||0);
+    const newGearScore = (+row[colMap.GearScore]||0);
+    const newTotalScore = (+row[colMap.TotalScore]||0);
+
     const oldCharGP = oldRow ? (+oldRow[old.header.indexOf("CharacterGP")]||0) : 0;
     const oldShipGP = oldRow ? (+oldRow[old.header.indexOf("ShipGP")]||0) : 0;
     const oldTotalGP = oldCharGP + oldShipGP;
@@ -96,21 +110,60 @@ function renderComparison(oldText,newText) {
     const oldGearScore = oldRow ? (+oldRow[old.header.indexOf("GearScore")]||0) : 0;
     const oldTotalScore = oldRow ? (+oldRow[old.header.indexOf("TotalScore")]||0) : 0;
 
+    const diffCharGP = newCharGP - oldCharGP;
+    const diffShipGP = newShipGP - oldShipGP;
+    const diffTotalGP = newTotalGP - oldTotalGP;
+    const diffModScore = newModScore - oldModScore;
+    const diffGearScore = newGearScore - oldGearScore;
+    const diffTotalScore = newTotalScore - oldTotalScore;
+
     const allyCode = row[colMap.AllyCode];
-    const swgohLink = allyCode ? `<a href="https://swgoh.gg/p/${allyCode}/" target="_blank">${allyCode}</a>` : "";
+    const swgohLink = allyCode ? `<a href="https://swgoh.gg/p/${allyCode}/" target="_blank" rel="noopener">${allyCode}</a>` : "";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${row[colMap.Name]}</td>
       <td>${swgohLink}</td>
-      <td>${Number(row[colMap.CharGP]).toLocaleString()} <span class="oldVal">(${oldCharGP.toLocaleString()})</span></td>
-      <td>${Number(row[colMap.ShipGP]).toLocaleString()} <span class="oldVal">(${oldShipGP.toLocaleString()})</span></td>
-      <td>${totalGP.toLocaleString()} <span class="oldVal">(${oldTotalGP.toLocaleString()})</span></td>
+
+      <td>
+        ${newCharGP.toLocaleString()}
+        <span class="oldVal">(${oldCharGP.toLocaleString()})</span>
+        ${formatDiff(diffCharGP)}
+      </td>
+
+      <td>
+        ${newShipGP.toLocaleString()}
+        <span class="oldVal">(${oldShipGP.toLocaleString()})</span>
+        ${formatDiff(diffShipGP)}
+      </td>
+
+      <td>
+        ${newTotalGP.toLocaleString()}
+        <span class="oldVal">(${oldTotalGP.toLocaleString()})</span>
+        ${formatDiff(diffTotalGP)}
+      </td>
+
       <td>${row[colMap.League]}</td>
       <td>${row[colMap.Skill]}</td>
-      <td>${row[colMap.ModScore]} <span class="oldVal">(${oldModScore})</span></td>
-      <td>${row[colMap.GearScore]} <span class="oldVal">(${oldGearScore})</span></td>
-      <td>${row[colMap.TotalScore]} <span class="oldVal">(${oldTotalScore})</span></td>
+
+      <td>
+        ${newModScore}
+        <span class="oldVal">(${oldModScore})</span>
+        ${formatDiff(diffModScore, false)}
+      </td>
+
+      <td>
+        ${newGearScore}
+        <span class="oldVal">(${oldGearScore})</span>
+        ${formatDiff(diffGearScore, false)}
+      </td>
+
+      <td>
+        ${newTotalScore}
+        <span class="oldVal">(${oldTotalScore})</span>
+        ${formatDiff(diffTotalScore, false)}
+      </td>
+
       <td>${row[colMap.Zetas]}</td>
       <td>${row[colMap.Omis]}</td>
       <td>${row[colMap.Speed20]}</td>
@@ -134,14 +187,17 @@ function makeSortable() {
 }
 
 function sortTable(col) {
-  const table=document.getElementById("guildTable");
-  const rows=Array.from(table.tBodies[0].rows);
-  const idx=Array.from(table.tHead.rows[0].cells).findIndex(c=>c.getAttribute("data-col")===col);
+  const table = document.getElementById("guildTable");
+  const rows = Array.from(table.tBodies[0].rows);
+  const idx = Array.from(table.tHead.rows[0].cells).findIndex(c=>c.getAttribute("data-col")===col);
 
   rows.sort((a,b)=>{
-    const valA=a.cells[idx].innerText.replace(/,/g,"");
-    const valB=b.cells[idx].innerText.replace(/,/g,"");
-    return Number(valB)-Number(valA);
+    // Strip commas and plus sign for numeric comparison
+    const valA = a.cells[idx].innerText.replace(/[,+]/g,"").match(/-?\d+(\.\d+)?/g);
+    const valB = b.cells[idx].innerText.replace(/[,+]/g,"").match(/-?\d+(\.\d+)?/g);
+    const numA = valA ? Number(valA[0]) : 0; // sort by current value
+    const numB = valB ? Number(valB[0]) : 0;
+    return numB - numA; // descending
   });
 
   rows.forEach(r=>table.tBodies[0].appendChild(r));
