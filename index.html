@@ -4,133 +4,161 @@
   <meta charset="UTF-8">
   <title>Chewbooty Guild Roster</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #1c1c1c;
-      color: #f0f0f0;
-      margin: 20px;
-    }
-    h1 {
-      text-align: center;
-      color: #ffd700;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: #2a2a2a;
-    }
-    th, td {
-      border: 1px solid #444;
-      padding: 6px 8px;
-      text-align: center;
-    }
-    th {
-      background: #333;
-      color: #ffd700;
-      position: sticky;
-      top: 0;
-    }
-    tr:nth-child(even) {
-      background: #242424;
-    }
-    tr:hover {
-      background: #3a3a3a;
-    }
-    .small {
-      font-size: 0.85em;
-      color: #bbb;
-    }
+    body { font-family: Arial, sans-serif; background:#1c1c1c; color:#f0f0f0; margin:20px; }
+    h1 { text-align:center; color:#ffd700; }
+    table { width:100%; border-collapse:collapse; margin-top:20px; background:#2a2a2a; }
+    th, td { border:1px solid #444; padding:6px 8px; text-align:center; }
+    th { background:#333; color:#ffd700; cursor:pointer; position:sticky; top:0; }
+    tr:nth-child(even) { background:#242424; }
+    tr:hover { background:#3a3a3a; }
+    .small { font-size:0.85em; color:#bbb; }
+    .pos { color:#00ff00; font-weight:bold; }
+    .neg { color:#ff4444; font-weight:bold; }
   </style>
 </head>
 <body>
   <h1>Chewbooty Guild Roster</h1>
+  <button id="reloadBtn">Reload Fixed CSV</button>
   <input type="file" id="fileInput" accept=".csv" />
   <table id="guildTable">
     <thead>
       <tr>
-        <th>Player</th>
-        <th>Discord</th>
-        <th>Character GP</th>
-        <th>Ship GP</th>
-        <th>Total GP</th>
-        <th>League</th>
-        <th>Skill Rating</th>
-        <th>G13</th>
-        <th>Relics</th>
-        <th>Zetas</th>
-        <th>Omicrons</th>
-        <th>Speed ≥20</th>
-        <th>Speed ≥25</th>
-        <th>Ultimate GL</th>
+        <th data-col="Name">Player</th>
+        <th data-col="DiscordTag">Discord</th>
+        <th data-col="CharacterGP">Character GP</th>
+        <th data-col="ShipGP">Ship GP</th>
+        <th data-col="TotalGP">Total GP</th>
+        <th data-col="LeagueId">League</th>
+        <th data-col="SkillRating">Skill Rating</th>
+        <th data-col="G13Count">G13</th>
+        <th data-col="Relics">Relics</th>
+        <th data-col="ZetaCount">Zetas</th>
+        <th data-col="OmiCount">Omicrons</th>
+        <th data-col="Speed20">Speed ≥20</th>
+        <th data-col="Speed25">Speed ≥25</th>
+        <th data-col="UltimateGLCount">Ultimate GL</th>
+        <th>Net Change (GP)</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <script>
-    document.getElementById('fileInput').addEventListener('change', handleFile);
+<script>
+let previousData = null; // store last CSV data
+const FIXED_URL = "Chewbooty.csv"; // replace with hosted CSV URL
 
-    function handleFile(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const text = e.target.result;
-        renderTable(text);
-      };
-      reader.readAsText(file);
+document.getElementById('reloadBtn').addEventListener('click', () => {
+  fetch(FIXED_URL).then(r=>r.text()).then(text => {
+    previousData = null; // reset comparison
+    renderTable(text);
+  });
+});
+
+document.getElementById('fileInput').addEventListener('change', handleFile);
+
+function handleFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    renderTable(text, previousData);
+    previousData = parseCSV(text); // store for next upload
+  };
+  reader.readAsText(file);
+}
+
+function parseCSV(csvText) {
+  const rows = csvText.trim().split(/\r?\n/).map(r => r.split(','));
+  const header = rows[0];
+  const data = rows.slice(1);
+  return {header, data};
+}
+
+function renderTable(csvText, prev=null) {
+  const {header, data} = parseCSV(csvText);
+  const colMap = {
+    Name: header.indexOf("Name"),
+    DiscordTag: header.indexOf("DiscordTag"),
+    CharGP: header.indexOf("CharacterGP"),
+    ShipGP: header.indexOf("ShipGP"),
+    League: header.indexOf("LeagueId"),
+    Skill: header.indexOf("SkillRating"),
+    G13: header.indexOf("G13Count"),
+    Zetas: header.indexOf("ZetaCount"),
+    Omis: header.indexOf("OmiCount"),
+    Speed20: header.indexOf("Speed20"),
+    Speed25: header.indexOf("Speed25"),
+    UltGL: header.indexOf("UltimateGLCount"),
+    RelicStart: header.indexOf("Relic1Count"),
+    RelicEnd: header.indexOf("Relic9Count")
+  };
+
+  const tbody = document.querySelector("#guildTable tbody");
+  tbody.innerHTML = "";
+
+  data.forEach(row => {
+    const totalGP = (+row[colMap.CharGP]||0) + (+row[colMap.ShipGP]||0);
+    const relics = row.slice(colMap.RelicStart, colMap.RelicEnd+1)
+                      .reduce((sum,v)=>sum+(+v||0),0);
+
+    let netChange = "";
+    if (prev) {
+      const prevRow = prev.data.find(r => r[prev.header.indexOf("Name")] === row[colMap.Name]);
+      if (prevRow) {
+        const prevGP = (+prevRow[prev.header.indexOf("CharacterGP")]||0) + (+prevRow[prev.header.indexOf("ShipGP")]||0);
+        const diff = totalGP - prevGP;
+        netChange = `<span class="${diff>=0?'pos':'neg'}">${diff>=0?'+':''}${diff.toLocaleString()}</span>`;
+      }
     }
 
-    function renderTable(csvText) {
-      const rows = csvText.trim().split(/\r?\n/).map(r => r.split(','));
-      const header = rows[0];
-      const data = rows.slice(1);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row[colMap.Name]}</td>
+      <td class="small">${row[colMap.DiscordTag]}</td>
+      <td>${Number(row[colMap.CharGP]).toLocaleString()}</td>
+      <td>${Number(row[colMap.ShipGP]).toLocaleString()}</td>
+      <td>${totalGP.toLocaleString()}</td>
+      <td>${row[colMap.League]}</td>
+      <td>${row[colMap.Skill]}</td>
+      <td>${row[colMap.G13]}</td>
+      <td>${relics}</td>
+      <td>${row[colMap.Zetas]}</td>
+      <td>${row[colMap.Omis]}</td>
+      <td>${row[colMap.Speed20]}</td>
+      <td>${row[colMap.Speed25]}</td>
+      <td>${row[colMap.UltGL]}</td>
+      <td>${netChange}</td>
+    `;
+    tbody.appendChild(tr);
+  });
 
-      // Map relevant columns
-      const colMap = {
-        Name: header.indexOf("Name"),
-        DiscordTag: header.indexOf("DiscordTag"),
-        CharGP: header.indexOf("CharacterGP"),
-        ShipGP: header.indexOf("ShipGP"),
-        League: header.indexOf("LeagueId"),
-        Skill: header.indexOf("SkillRating"),
-        G13: header.indexOf("G13Count"),
-        Zetas: header.indexOf("ZetaCount"),
-        Omis: header.indexOf("OmiCount"),
-        Speed20: header.indexOf("Speed20"),
-        Speed25: header.indexOf("Speed25"),
-        UltGL: header.indexOf("UltimateGLCount")
-      };
+  makeSortable();
+}
 
-      const tbody = document.querySelector("#guildTable tbody");
-      tbody.innerHTML = "";
+function makeSortable() {
+  const headers = document.querySelectorAll("th[data-col]");
+  headers.forEach(th => {
+    th.onclick = () => {
+      const col = th.getAttribute("data-col");
+      sortTable(col);
+    };
+  });
+}
 
-      data.forEach(row => {
-        const totalGP = (+row[colMap.CharGP] || 0) + (+row[colMap.ShipGP] || 0);
-        const relics = row.slice(header.indexOf("Relic1Count"), header.indexOf("Relic9Count")+1)
-                          .reduce((sum, v) => sum + (+v || 0), 0);
+function sortTable(col) {
+  const table = document.getElementById("guildTable");
+  const rows = Array.from(table.tBodies[0].rows);
+  const idx = Array.from(table.tHead.rows[0].cells).findIndex(c=>c.getAttribute("data-col")===col);
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${row[colMap.Name]}</td>
-          <td class="small">${row[colMap.DiscordTag]}</td>
-          <td>${Number(row[colMap.CharGP]).toLocaleString()}</td>
-          <td>${Number(row[colMap.ShipGP]).toLocaleString()}</td>
-          <td>${totalGP.toLocaleString()}</td>
-          <td>${row[colMap.League]}</td>
-          <td>${row[colMap.Skill]}</td>
-          <td>${row[colMap.G13]}</td>
-          <td>${relics}</td>
-          <td>${row[colMap.Zetas]}</td>
-          <td>${row[colMap.Omis]}</td>
-          <td>${row[colMap.Speed20]}</td>
-          <td>${row[colMap.Speed25]}</td>
-          <td>${row[colMap.UltGL]}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-  </script>
+  rows.sort((a,b)=>{
+    const valA = a.cells[idx].innerText.replace(/,/g,"");
+    const valB = b.cells[idx].innerText.replace(/,/g,"");
+    return Number(valB)-Number(valA);
+  });
+
+  rows.forEach(r=>table.tBodies[0].appendChild(r));
+}
+</script>
 </body>
 </html>
