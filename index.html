@@ -82,6 +82,10 @@
     .neg { color:var(--red); font-weight:bold; margin-left:6px; }
     .zero { color:var(--muted); font-weight:bold; margin-left:6px; }
 
+    /* small visual indicator for sort direction */
+    th[data-sort-dir="asc"]::after { content: " ▲"; font-size:11px; color:#ddd; margin-left:6px; }
+    th[data-sort-dir="desc"]::after { content: " ▼"; font-size:11px; color:#ddd; margin-left:6px; }
+
     @media (max-width:900px) {
       table { font-size:13px; }
       th, td { padding:6px; }
@@ -256,7 +260,7 @@ function renderComparison(oldText, newText) {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td style="text-align:left">${playerLink}</td>
+      <td style="text-align:left" data-name="${escapeHtml(playerName).toLowerCase()}">${playerLink}</td>
 
       <td data-cur="${newCharGP}" data-diff="${diffCharGP}">
         ${newCharGP.toLocaleString()}
@@ -339,25 +343,62 @@ function makeSortable() {
   const headers = document.querySelectorAll("th[data-col]");
   headers.forEach(th => {
     th.style.userSelect = "none";
+    // initialize sort direction attribute to empty
+    if (!th.dataset.sortDir) th.dataset.sortDir = "";
     th.onclick = () => {
       const col = th.getAttribute("data-col");
-      sortTable(col);
-      headers.forEach(h => h.style.opacity = h === th ? "1" : "0.85");
+      // Determine new sort direction:
+      // If clicking same column, toggle; otherwise set default:
+      // - Name: default ascending (A-Z)
+      // - others: default descending (largest first)
+      const current = th.dataset.sortDir || "";
+      let newDir;
+      if (current === "") {
+        newDir = (col === "Name") ? "asc" : "desc";
+      } else if (current === "asc") {
+        newDir = "desc";
+      } else {
+        newDir = "asc";
+      }
+
+      // clear sortDir on all headers, then set on clicked header
+      headers.forEach(h => h.dataset.sortDir = "");
+      th.dataset.sortDir = newDir;
+
+      sortTable(col, newDir);
+      headers.forEach(h => h.style.opacity = h === th ? "1" : "0.95");
     };
   });
 }
 
-function sortTable(col) {
+function sortTable(col, dir) {
   const table = document.getElementById("guildTable");
   const rows = Array.from(table.tBodies[0].rows);
   const headerCells = Array.from(table.tHead.rows[0].cells);
   const idx = headerCells.findIndex(c => c.getAttribute("data-col") === col);
   if (idx === -1) return;
 
+  // If dir not provided, try to read from header
+  if (!dir) {
+    const th = headerCells[idx];
+    dir = th && th.dataset.sortDir ? th.dataset.sortDir : (col === "Name" ? "asc" : "desc");
+  }
+
   rows.sort((a, b) => {
-    const numA = extractLeadingNumber(a.cells[idx].innerText);
-    const numB = extractLeadingNumber(b.cells[idx].innerText);
-    return numB - numA; // Descending
+    if (col === "Name") {
+      // alphabetical sort by the displayed name text (case-insensitive)
+      const nameA = (a.cells[0].getAttribute("data-name") || a.cells[0].innerText || "").toLowerCase();
+      const nameB = (b.cells[0].getAttribute("data-name") || b.cells[0].innerText || "").toLowerCase();
+      if (nameA < nameB) return dir === "asc" ? -1 : 1;
+      if (nameA > nameB) return dir === "asc" ? 1 : -1;
+      return 0;
+    } else {
+      // numeric sort using leading number extraction
+      const numA = extractLeadingNumber(a.cells[idx].innerText);
+      const numB = extractLeadingNumber(b.cells[idx].innerText);
+      if (numA === numB) return 0;
+      return dir === "asc" ? (numA - numB) : (numB - numA);
+    }
   });
 
   rows.forEach(r => table.tBodies[0].appendChild(r));
@@ -452,21 +493,6 @@ function renderWinnersStrip() {
 }
 
 // Toggle winners strip visibility (integrated, non-blocking)
-document.addEventListener("click", (e) => {
-  const btn = document.getElementById("toggleWinners");
-  if (!btn) return;
-  btn.addEventListener("click", () => {
-    const container = document.getElementById("winnersContainer");
-    if (!container) return;
-    const isHidden = container.style.display === "none";
-    container.style.display = isHidden ? "flex" : "none";
-    btn.textContent = isHidden ? "Hide winners" : "Show winners";
-    btn.setAttribute("aria-expanded", String(isHidden));
-  }, { once: true });
-  // The above attaches the handler once on first click event dispatch; ensure handler exists immediately:
-}, { once: true });
-
-// Attach handler immediately (safer)
 (function attachToggle() {
   const btn = document.getElementById("toggleWinners");
   const container = document.getElementById("winnersContainer");
