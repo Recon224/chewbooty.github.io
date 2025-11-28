@@ -4,93 +4,135 @@
   <meta charset="UTF-8" />
   <title>Chewbooty Roster</title>
   <style>
-    :root {
-      --bg:#1c1c1c;
-      --panel:#2b2b2b;
-      --panel-2:#232323;
-      --muted:#bbb;
-      --accent:#ffd700;
-      --green:#00ff00;
-      --red:#ff4444;
-      --link:#66ccff;
+    :root{
+      --bg:#0f0f10;
+      --panel:#1b1b1d;
+      --panel-2:#151516;
+      --muted:#bdbdbd;
+      --accent:#ffd166;
+      --link:#66d9ff;
+      --green:#00ff88;
+      --red:#ff6b6b;
+      --shadow: rgba(0,0,0,0.55);
     }
 
-    body { font-family: Arial, sans-serif; background:var(--bg); color:#f0f0f0; margin:20px; }
+    /* Base layout */
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background:var(--bg); color:#f3f3f3; margin:20px; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
     header { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:12px; }
-    h1 { margin:0; color:var(--accent); font-size:20px; text-align:left; }
+    h1 { margin:0; color:var(--accent); font-size:20px; text-align:left; letter-spacing:0.2px; }
 
-    /* Inline winners strip (integrated into page, not fixed) */
+    /* Winners strip (inline, collapsible) */
     .winners-strip {
       display:flex;
       gap:12px;
       align-items:stretch;
       background:linear-gradient(180deg,var(--panel),var(--panel-2));
-      border:1px solid #444;
+      border:1px solid rgba(255,255,255,0.04);
       padding:8px;
       border-radius:8px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.45);
+      box-shadow:0 6px 18px var(--shadow);
       color:#f0f0f0;
       min-width:0;
       flex:1 1 420px;
+      backdrop-filter: blur(4px);
     }
-    .winners-col {
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      min-width:0;
-      flex:1;
-    }
-    .winners-title { color:var(--accent); font-size:13px; margin:0 0 4px 0; }
+    .winners-col { display:flex; flex-direction:column; gap:6px; min-width:0; flex:1; }
+    .winners-title { color:var(--accent); font-size:13px; margin:0 0 4px 0; font-weight:600; }
     .winner-row {
-      display:flex;
-      align-items:center;
-      gap:8px;
-      background:rgba(255,255,255,0.02);
-      padding:6px 8px;
-      border-radius:6px;
-      font-size:13px;
-      overflow:hidden;
-      white-space:nowrap;
-      text-overflow:ellipsis;
+      display:flex; align-items:center; gap:8px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+      padding:6px 8px; border-radius:6px; font-size:13px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
+      transition: transform 160ms ease, background 160ms ease;
     }
+    .winner-row:hover { transform: translateY(-3px); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)); }
     .medal { width:22px; text-align:center; font-size:16px; }
     .winner-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#e8e8e8; }
     .winner-val { color:var(--muted); font-size:12px; margin-left:6px; }
 
-    /* collapse control */
     .winners-controls { display:flex; align-items:center; gap:8px; }
     .toggle-btn {
-      background:transparent;
-      border:1px solid #444;
-      color:#f0f0f0;
-      padding:6px 8px;
-      border-radius:6px;
-      cursor:pointer;
-      font-size:13px;
+      background:transparent; border:1px solid rgba(255,255,255,0.04); color:#f0f0f0; padding:6px 8px; border-radius:6px; cursor:pointer; font-size:13px;
     }
 
     /* Table */
-    table { width:100%; border-collapse:collapse; margin-top:12px; background:#2a2a2a; }
-    th, td { border:1px solid #444; padding:6px 8px; text-align:center; vertical-align:middle; }
-    th { background:#333; color:var(--accent); cursor:pointer; position:sticky; top:0; z-index:2; }
-    tr:nth-child(even) { background:#242424; }
-    tr:hover { background:#3a3a3a; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; background:linear-gradient(#161616,#141414); border-radius:6px; overflow:hidden; }
+    thead th { border-bottom:1px solid rgba(255,255,255,0.04); }
+    th, td { border:1px solid rgba(255,255,255,0.03); padding:8px 10px; text-align:center; vertical-align:middle; }
+    th { background:linear-gradient(180deg,#222,#1b1b1b); color:var(--accent); cursor:pointer; position:sticky; top:0; z-index:2; font-weight:600; font-size:13px; }
+    tr:nth-child(even) { background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)); }
+    tr:hover { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)); }
+
     a { color:var(--link); text-decoration:none; }
     a:hover { text-decoration:underline; }
-    .oldVal { color:var(--muted); font-size:0.9em; margin-left:6px; }
-    .pos { color:var(--green); font-weight:bold; margin-left:6px; }
-    .neg { color:var(--red); font-weight:bold; margin-left:6px; }
-    .zero { color:var(--muted); font-weight:bold; margin-left:6px; }
 
-    /* small visual indicator for sort direction */
-    th[data-sort-dir="asc"]::after { content: " ▲"; font-size:11px; color:#ddd; margin-left:6px; }
-    th[data-sort-dir="desc"]::after { content: " ▼"; font-size:11px; color:#ddd; margin-left:6px; }
+    .oldVal { color:var(--muted); font-size:0.9em; margin-left:6px; }
+    .pos { color:var(--green); font-weight:700; margin-left:6px; }
+    .neg { color:var(--red); font-weight:700; margin-left:6px; }
+    .zero { color:var(--muted); font-weight:700; margin-left:6px; }
+
+    /* Tabular numbers for numeric cells */
+    td.num, th.num { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; }
+
+    /* compact mode helper (toggleable) */
+    .table-compact th, .table-compact td { padding:6px 8px; font-size:13px; }
+    .table-compact tbody tr { height:36px; }
+
+    /* Row lift + left accent bar */
+    tbody tr { position:relative; transition: transform 180ms cubic-bezier(.2,.9,.2,1), box-shadow 180ms cubic-bezier(.2,.9,.2,1); }
+    tbody tr::before {
+      content:"";
+      position:absolute;
+      left:6px;
+      top:8px;
+      bottom:8px;
+      width:4px;
+      border-radius:4px;
+      background:transparent;
+      transition: background 160ms ease, width 160ms ease, left 160ms ease;
+      pointer-events:none;
+    }
+    tbody tr:hover, tbody tr:focus-within { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.6); z-index:1; }
+    tbody tr:hover::before, tbody tr:focus-within::before { background: linear-gradient(180deg,var(--accent),var(--link)); width:6px; left:4px; }
+
+    /* Number pop effect */
+    td.num { transition: transform 140ms ease, color 140ms ease; }
+    tbody tr:hover td.num, tbody tr:focus-within td.num { transform: translateY(-2px); color:#ffffff; }
+
+    /* Tooltip microcard */
+    .tooltip { position:relative; display:inline-block; }
+    .tooltip .tip {
+      position:absolute; left:50%; transform:translateX(-50%) translateY(8px); bottom:100%;
+      min-width:180px; background:#111; color:#fff; padding:8px; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.6);
+      opacity:0; pointer-events:none; transition:opacity 140ms ease, transform 140ms ease; font-size:13px; z-index:30;
+    }
+    .tooltip:focus-within .tip, .tooltip:hover .tip { opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
+    .tip .tip-row { display:flex; justify-content:space-between; gap:8px; margin:4px 0; }
+    .tip .tip-row strong { color:var(--accent); font-weight:600; }
+
+    /* Ripple click feedback */
+    .ripple { position:relative; overflow:hidden; }
+    .ripple .ripple-anim {
+      position:absolute; border-radius:50%; background:rgba(255,255,255,0.12);
+      transform: scale(0); animation: ripple 600ms ease-out forwards;
+      pointer-events:none;
+    }
+    @keyframes ripple { to { transform: scale(4); opacity:0; } }
+
+    /* Sort indicator */
+    th[data-sort-dir="asc"]::after { content:" ▲"; font-size:11px; color:#ddd; margin-left:6px; }
+    th[data-sort-dir="desc"]::after { content:" ▼"; font-size:11px; color:#ddd; margin-left:6px; }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      tbody tr, tbody tr::before, td.num, .winner-row { transition: none !important; transform: none !important; box-shadow: none !important; }
+      .tooltip .tip { transition: none !important; transform: none !important; }
+      .ripple .ripple-anim { display:none !important; }
+    }
 
     @media (max-width:900px) {
-      table { font-size:13px; }
-      th, td { padding:6px; }
       header { flex-direction:column; align-items:flex-start; gap:8px; }
-      .winners-strip { flex-direction:column; gap:8px; width:100%; }
+      .winners-strip { flex-direction:column; width:100%; }
+      th, td { padding:6px 8px; font-size:13px; }
     }
   </style>
 </head>
@@ -103,7 +145,6 @@
       <div id="winnersContainer" class="winners-strip" aria-live="polite">
         <div class="winners-col" id="gpGrowth">
           <div class="winners-title">Total GP Growth</div>
-          <!-- placeholder rows; JS will populate -->
           <div class="winner-row"><div class="medal">—</div><div class="winner-name">No positive growth</div><div class="winner-val"></div></div>
         </div>
 
@@ -115,35 +156,38 @@
 
       <div class="winners-controls">
         <button id="toggleWinners" class="toggle-btn" aria-expanded="true" aria-controls="winnersContainer">Hide winners</button>
+        <button id="compactToggle" class="toggle-btn" aria-pressed="false">Compact</button>
       </div>
     </div>
   </header>
 
-  <table id="guildTable">
+  <table id="guildTable" class="">
     <thead>
       <tr>
         <th data-col="Name">Player (link)</th>
-        <th data-col="CharacterGP">Character GP (Prior Month)</th>
-        <th data-col="ShipGP">Ship GP (Prior Month)</th>
-        <th data-col="TotalGP">Total GP (Prior Month)</th>
+        <th data-col="CharacterGP" class="num">Character GP (Prior Month)</th>
+        <th data-col="ShipGP" class="num">Ship GP (Prior Month)</th>
+        <th data-col="TotalGP" class="num">Total GP (Prior Month)</th>
         <th data-col="LeagueId">League</th>
         <th data-col="SkillRating">Skill Rating</th>
-        <th data-col="ModScore">Mod Score (Prior Month)</th>
-        <th data-col="GearScore">Gear Score (Prior Month)</th>
-        <th data-col="TotalScore">Total Score (Prior Month)</th>
-        <th data-col="ZetaCount">Zetas</th>
-        <th data-col="OmiCount">Omicrons</th>
-        <th data-col="Speed20">Speed ≥20</th>
-        <th data-col="Speed25">Speed ≥25</th>
-        <th data-col="UltimateGLCount">Ultimate GL</th>
+        <th data-col="ModScore" class="num">Mod Score (Prior Month)</th>
+        <th data-col="GearScore" class="num">Gear Score (Prior Month)</th>
+        <th data-col="TotalScore" class="num">Total Score (Prior Month)</th>
+        <th data-col="ZetaCount" class="num">Zetas</th>
+        <th data-col="OmiCount" class="num">Omicrons</th>
+        <th data-col="Speed20" class="num">Speed ≥20</th>
+        <th data-col="Speed25" class="num">Speed ≥25</th>
+        <th data-col="UltimateGLCount" class="num">Ultimate GL</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
 <script>
+/* Files to fetch (must exist alongside this HTML) */
 const FILES = ["ChewbootyOld.csv","Chewbooty.csv"];
 
+/* Fetch CSVs and render */
 Promise.all(FILES.map(f => fetch(f).then(r => {
   if (!r.ok) throw new Error(`Failed to fetch ${f}: ${r.status}`);
   return r.text();
@@ -155,6 +199,7 @@ Promise.all(FILES.map(f => fetch(f).then(r => {
     tbody.innerHTML = `<tr><td colspan="14" style="color:#f88; text-align:center;">Error loading CSV files. Check console for details.</td></tr>`;
   });
 
+/* CSV parser (robust for quoted fields) */
 function parseCSV(csvText) {
   if (!csvText) return { header: [], data: [] };
   const lines = csvText.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n").filter(l => l.trim() !== "");
@@ -176,6 +221,7 @@ function parseCSV(csvText) {
   return { header, data };
 }
 
+/* Small helpers */
 function formatDiff(diff, decimals = 0) {
   const cls = diff > 0 ? "pos" : diff < 0 ? "neg" : "zero";
   const val = typeof diff === "number"
@@ -184,20 +230,16 @@ function formatDiff(diff, decimals = 0) {
   const sign = (typeof diff === "number" && diff > 0) ? "+" : "";
   return `<span class="${cls}">${sign}${val}</span>`;
 }
+function getIndexMap(header) { const map = {}; header.forEach((h,i)=>map[h]=i); return map; }
+function escapeHtml(str){ if (typeof str !== "string") return ""; return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function extractLeadingNumber(text){ if (!text) return 0; const m = text.replace(/[,+]/g,"").match(/-?\d+(\.\d+)?/); return m ? Number(m[0]) : 0; }
 
-function getIndexMap(header) {
-  const map = {};
-  header.forEach((h, i) => { map[h] = i; });
-  return map;
-}
-
+/* Main render function */
 function renderComparison(oldText, newText) {
   const old = parseCSV(oldText);
   const newer = parseCSV(newText);
-
   const newMap = getIndexMap(newer.header);
   const oldMap = getIndexMap(old.header);
-
   const tbody = document.querySelector("#guildTable tbody");
   tbody.innerHTML = "";
 
@@ -207,11 +249,9 @@ function renderComparison(oldText, newText) {
     if (allyNew && oldMap["AllyCode"] !== undefined) {
       oldRow = old.data.find(r => (r[oldMap["AllyCode"]]||"").trim() === allyNew);
     }
-    if (!oldRow) {
+    if (!oldRow && oldMap["Name"] !== undefined) {
       const nameNew = (row[newMap["Name"]] || "").trim();
-      if (oldMap["Name"] !== undefined) {
-        oldRow = old.data.find(r => (r[oldMap["Name"]]||"").trim() === nameNew);
-      }
+      oldRow = old.data.find(r => (r[oldMap["Name"]]||"").trim() === nameNew);
     }
 
     // current values
@@ -240,7 +280,7 @@ function renderComparison(oldText, newText) {
     const oldSpeed25 = oldRow ? Number(oldRow[oldMap["Speed25"]] || 0) : 0;
     const oldGLs = oldRow ? Number(oldRow[oldMap["UltimateGLCount"]] || 0) : 0;
 
-    // differences
+    // diffs
     const diffCharGP = newCharGP - oldCharGP;
     const diffShipGP = newShipGP - oldShipGP;
     const diffTotalGP = newTotalGP - oldTotalGP;
@@ -258,113 +298,78 @@ function renderComparison(oldText, newText) {
       ? `<a href="https://swgoh.gg/p/${encodeURIComponent(allyNew)}/" target="_blank" rel="noopener noreferrer">${escapeHtml(playerName)}</a>`
       : escapeHtml(playerName);
 
+    // Build row. Add classes: numeric cells get class "num", and TotalGP/TotalScore cells get tooltip wrapper and ripple.
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td style="text-align:left" data-name="${escapeHtml(playerName).toLowerCase()}">${playerLink}</td>
 
-      <td data-cur="${newCharGP}" data-diff="${diffCharGP}">
-        ${newCharGP.toLocaleString()}
-        <span class="oldVal">(${oldCharGP.toLocaleString()})</span>
-        ${formatDiff(diffCharGP, 0)}
-      </td>
+      <td class="num">${newCharGP.toLocaleString()} <span class="oldVal">(${oldCharGP.toLocaleString()})</span> ${formatDiff(diffCharGP,0)}</td>
 
-      <td data-cur="${newShipGP}" data-diff="${diffShipGP}">
-        ${newShipGP.toLocaleString()}
-        <span class="oldVal">(${oldShipGP.toLocaleString()})</span>
-        ${formatDiff(diffShipGP, 0)}
-      </td>
+      <td class="num">${newShipGP.toLocaleString()} <span class="oldVal">(${oldShipGP.toLocaleString()})</span> ${formatDiff(diffShipGP,0)}</td>
 
-      <td data-cur="${newTotalGP}" data-diff="${diffTotalGP}">
-        ${newTotalGP.toLocaleString()}
+      <td class="num tooltip ripple" data-cur="${newTotalGP}" data-diff="${diffTotalGP}">
+        <span class="cell-main">${newTotalGP.toLocaleString()}</span>
         <span class="oldVal">(${oldTotalGP.toLocaleString()})</span>
-        ${formatDiff(diffTotalGP, 0)}
+        ${formatDiff(diffTotalGP,0)}
+        <div class="tip" role="tooltip">
+          <div class="tip-row"><strong>Change</strong><span>${diffTotalGP>0?`+${diffTotalGP.toLocaleString()}`:diffTotalGP.toLocaleString()}</span></div>
+          <div class="tip-row"><strong>Char GP</strong><span>${newCharGP.toLocaleString()}</span></div>
+          <div class="tip-row"><strong>Ship GP</strong><span>${newShipGP.toLocaleString()}</span></div>
+        </div>
       </td>
 
       <td>${escapeHtml(row[newMap["LeagueId"]] || "")}</td>
       <td>${escapeHtml(row[newMap["SkillRating"]] || "")}</td>
 
-      <td data-cur="${newModScore.toFixed(2)}" data-diff="${diffMod}">
-        ${newModScore.toFixed(2)}
-        <span class="oldVal">(${oldModScore.toFixed(2)})</span>
-        ${formatDiff(diffMod, 2)}
-      </td>
+      <td class="num">${newModScore.toFixed(2)} <span class="oldVal">(${oldModScore.toFixed(2)})</span> ${formatDiff(diffMod,2)}</td>
 
-      <td data-cur="${newGearScore.toFixed(2)}" data-diff="${diffGear}">
-        ${newGearScore.toFixed(2)}
-        <span class="oldVal">(${oldGearScore.toFixed(2)})</span>
-        ${formatDiff(diffGear, 2)}
-      </td>
+      <td class="num">${newGearScore.toFixed(2)} <span class="oldVal">(${oldGearScore.toFixed(2)})</span> ${formatDiff(diffGear,2)}</td>
 
-      <td data-cur="${newTotalScore.toFixed(2)}" data-diff="${diffTotalScore}">
-        ${newTotalScore.toFixed(2)}
+      <td class="num tooltip ripple" data-cur="${newTotalScore.toFixed(2)}" data-diff="${diffTotalScore}">
+        <span class="cell-main">${newTotalScore.toFixed(2)}</span>
         <span class="oldVal">(${oldTotalScore.toFixed(2)})</span>
-        ${formatDiff(diffTotalScore, 2)}
+        ${formatDiff(diffTotalScore,2)}
+        <div class="tip" role="tooltip">
+          <div class="tip-row"><strong>Change</strong><span>${diffTotalScore>0?`+${diffTotalScore.toFixed(2)}`:diffTotalScore.toFixed(2)}</span></div>
+          <div class="tip-row"><strong>Mod</strong><span>${newModScore.toFixed(2)}</span></div>
+          <div class="tip-row"><strong>Gear</strong><span>${newGearScore.toFixed(2)}</span></div>
+        </div>
       </td>
 
-      <td>
-        ${newZetas}
-        <span class="oldVal">(${oldZetas})</span>
-        ${formatDiff(diffZetas, 0)}
-      </td>
+      <td class="num">${newZetas} <span class="oldVal">(${oldZetas})</span> ${formatDiff(diffZetas,0)}</td>
 
-      <td>
-        ${newOmis}
-        <span class="oldVal">(${oldOmis})</span>
-        ${formatDiff(diffOmis, 0)}
-      </td>
+      <td class="num">${newOmis} <span class="oldVal">(${oldOmis})</span> ${formatDiff(diffOmis,0)}</td>
 
-      <td>
-        ${newSpeed20}
-        <span class="oldVal">(${oldSpeed20})</span>
-        ${formatDiff(diffSpeed20, 0)}
-      </td>
+      <td class="num">${newSpeed20} <span class="oldVal">(${oldSpeed20})</span> ${formatDiff(diffSpeed20,0)}</td>
 
-      <td>
-        ${newSpeed25}
-        <span class="oldVal">(${oldSpeed25})</span>
-        ${formatDiff(diffSpeed25, 0)}
-      </td>
+      <td class="num">${newSpeed25} <span class="oldVal">(${oldSpeed25})</span> ${formatDiff(diffSpeed25,0)}</td>
 
-      <td>
-        ${newGLs}
-        <span class="oldVal">(${oldGLs})</span>
-        ${formatDiff(diffGLs, 0)}
-      </td>
+      <td class="num">${newGLs} <span class="oldVal">(${oldGLs})</span> ${formatDiff(diffGLs,0)}</td>
     `;
     tbody.appendChild(tr);
   });
 
   makeSortable();
   addTopThreeEmojis();
-  renderWinnersStrip(); // populate inline winners strip
+  renderWinnersStrip();
+  attachRippleHandler(); // ensure ripple click handler is attached
 }
 
+/* Sorting */
 function makeSortable() {
   const headers = document.querySelectorAll("th[data-col]");
   headers.forEach(th => {
     th.style.userSelect = "none";
-    // initialize sort direction attribute to empty
     if (!th.dataset.sortDir) th.dataset.sortDir = "";
     th.onclick = () => {
       const col = th.getAttribute("data-col");
-      // Determine new sort direction:
-      // If clicking same column, toggle; otherwise set default:
-      // - Name: default ascending (A-Z)
-      // - others: default descending (largest first)
       const current = th.dataset.sortDir || "";
       let newDir;
-      if (current === "") {
-        newDir = (col === "Name") ? "asc" : "desc";
-      } else if (current === "asc") {
-        newDir = "desc";
-      } else {
-        newDir = "asc";
-      }
-
-      // clear sortDir on all headers, then set on clicked header
+      if (current === "") newDir = (col === "Name") ? "asc" : "desc";
+      else if (current === "asc") newDir = "desc";
+      else newDir = "asc";
       headers.forEach(h => h.dataset.sortDir = "");
       th.dataset.sortDir = newDir;
-
       sortTable(col, newDir);
       headers.forEach(h => h.style.opacity = h === th ? "1" : "0.95");
     };
@@ -377,8 +382,6 @@ function sortTable(col, dir) {
   const headerCells = Array.from(table.tHead.rows[0].cells);
   const idx = headerCells.findIndex(c => c.getAttribute("data-col") === col);
   if (idx === -1) return;
-
-  // If dir not provided, try to read from header
   if (!dir) {
     const th = headerCells[idx];
     dir = th && th.dataset.sortDir ? th.dataset.sortDir : (col === "Name" ? "asc" : "desc");
@@ -386,14 +389,12 @@ function sortTable(col, dir) {
 
   rows.sort((a, b) => {
     if (col === "Name") {
-      // alphabetical sort by the displayed name text (case-insensitive)
       const nameA = (a.cells[0].getAttribute("data-name") || a.cells[0].innerText || "").toLowerCase();
       const nameB = (b.cells[0].getAttribute("data-name") || b.cells[0].innerText || "").toLowerCase();
       if (nameA < nameB) return dir === "asc" ? -1 : 1;
       if (nameA > nameB) return dir === "asc" ? 1 : -1;
       return 0;
     } else {
-      // numeric sort using leading number extraction
       const numA = extractLeadingNumber(a.cells[idx].innerText);
       const numB = extractLeadingNumber(b.cells[idx].innerText);
       if (numA === numB) return 0;
@@ -404,72 +405,66 @@ function sortTable(col, dir) {
   rows.forEach(r => table.tBodies[0].appendChild(r));
 }
 
-// Rank and decorate top 3 with emojis (only for Total GP Growth and Total Score Growth)
+/* Award emojis and determine winners (based on positive change) */
 function addTopThreeEmojis() {
   const table = document.getElementById("guildTable");
   const rows = Array.from(table.tBodies[0].rows);
   const emojis = ["🥇","🥈","🥉"];
-
-  // Column indices (by header order)
-  // 0: Name, 1: CharacterGP, 2: ShipGP, 3: TotalGP, 4: League, 5: SkillRating,
-  // 6: ModScore, 7: GearScore, 8: TotalScore, 9: Zeta, 10: Omi, 11: Speed20, 12: Speed25, 13: GL
   const TOTAL_GP_IDX = 3;
   const TOTAL_SCORE_IDX = 8;
 
-  // Clear any previous emojis in those columns first (to avoid duplicates on re-render)
+  // Clear previous emojis
   rows.forEach(r => {
     [TOTAL_GP_IDX, TOTAL_SCORE_IDX].forEach(idx => {
       const cell = r.cells[idx];
-      if (cell) {
-        cell.innerHTML = cell.innerHTML.replace(/ 🥇| 🥈| 🥉/g, "");
-      }
+      if (cell) cell.innerHTML = cell.innerHTML.replace(/ 🥇| 🥈| 🥉/g, "");
     });
   });
 
-  // Helper to award emojis based on diff, only for positive diffs
   function awardByDiff(idx) {
     const ranked = rows.map(r => {
       const cell = r.cells[idx];
       const diff = Number(cell.getAttribute("data-diff") || 0);
       const name = r.cells[0].innerText || "";
-      return { cell, diff, name };
+      return { cell, diff, name, row: r };
     })
-    .filter(e => e.diff > 0) // only positive changes
-    .sort((a, b) => b.diff - a.diff);
+    .filter(e => e.diff > 0)
+    .sort((a,b) => b.diff - a.diff);
 
-    ranked.slice(0, 3).forEach((entry, rank) => {
+    ranked.slice(0,3).forEach((entry, rank) => {
       const emoji = emojis[rank];
-      if (!entry.cell.innerHTML.includes(emoji)) {
-        entry.cell.innerHTML = entry.cell.innerHTML + " " + emoji;
-      }
+      if (!entry.cell.innerHTML.includes(emoji)) entry.cell.innerHTML = entry.cell.innerHTML + " " + emoji;
     });
 
-    return ranked.slice(0, 3); // return top entries for strip rendering
+    return ranked.slice(0,3);
   }
 
   const gpWinners = awardByDiff(TOTAL_GP_IDX);
   const scoreWinners = awardByDiff(TOTAL_SCORE_IDX);
 
-  // Save winners data on the table element for the winners strip to read
-  const tableEl = document.getElementById("guildTable");
-  tableEl._gpWinners = gpWinners;
-  tableEl._scoreWinners = scoreWinners;
+  // Save winners for strip rendering
+  table._gpWinners = gpWinners;
+  table._scoreWinners = scoreWinners;
+
+  // Celebrate top winner(s) with a small confetti burst (respect reduced-motion)
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (gpWinners[0]) burstConfetti(gpWinners[0].row, 14);
+    if (scoreWinners[0]) burstConfetti(scoreWinners[0].row, 14);
+  }
 }
 
-// Render the inline winners strip (integrated into page)
+/* Render winners inline strip */
 function renderWinnersStrip() {
   const tableEl = document.getElementById("guildTable");
   const gpWinners = tableEl._gpWinners || [];
   const scoreWinners = tableEl._scoreWinners || [];
-
   const gpContainer = document.getElementById("gpGrowth");
   const scoreContainer = document.getElementById("scoreGrowth");
 
-  // clear existing rows (keep title)
   gpContainer.querySelectorAll(".winner-row").forEach(n => n.remove());
   scoreContainer.querySelectorAll(".winner-row").forEach(n => n.remove());
 
-  function renderCategory(container, winners, valueLabel) {
+  function renderCategory(container, winners) {
     if (!winners.length) {
       const row = document.createElement("div");
       row.className = "winner-row";
@@ -477,23 +472,89 @@ function renderWinnersStrip() {
       container.appendChild(row);
       return;
     }
-    winners.forEach((w, i) => {
+    winners.forEach((w,i) => {
       const row = document.createElement("div");
       row.className = "winner-row";
-      const emoji = i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉";
+      const emoji = i===0?"🥇":i===1?"🥈":"🥉";
       const nameText = (w.name || "").trim() || "Unknown";
-      const valueText = (typeof w.diff === "number") ? (w.diff > 0 ? `+${Number(w.diff).toLocaleString()}` : `${Number(w.diff).toLocaleString()}`) : "";
+      const valueText = (typeof w.diff === "number") ? (w.diff>0?`+${Number(w.diff).toLocaleString()}`:`${Number(w.diff).toLocaleString()}`) : "";
       row.innerHTML = `<div class="medal">${emoji}</div><div class="winner-name" title="${escapeHtml(nameText)}">${escapeHtml(nameText)}</div><div class="winner-val">${escapeHtml(valueText)}</div>`;
       container.appendChild(row);
     });
   }
 
-  renderCategory(gpContainer, gpWinners, "GP");
-  renderCategory(scoreContainer, scoreWinners, "Score");
+  renderCategory(gpContainer, gpWinners);
+  renderCategory(scoreContainer, scoreWinners);
 }
 
-// Toggle winners strip visibility (integrated, non-blocking)
-(function attachToggle() {
+/* Ripple click handler for cells with class 'ripple' */
+function attachRippleHandler() {
+  const table = document.getElementById("guildTable");
+  if (!table._rippleAttached) {
+    table.addEventListener('click', e => {
+      const cell = e.target.closest('td.ripple');
+      if (!cell) return;
+      // create ripple
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const r = document.createElement('span');
+      r.className = 'ripple-anim';
+      const rect = cell.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height) * 1.2;
+      r.style.width = r.style.height = size + 'px';
+      r.style.left = (e.clientX - rect.left - size/2) + 'px';
+      r.style.top = (e.clientY - rect.top - size/2) + 'px';
+      cell.appendChild(r);
+      setTimeout(()=> r.remove(), 700);
+    });
+    table._rippleAttached = true;
+  }
+}
+
+/* Confetti burst (lightweight) */
+function burstConfetti(containerRow, count=18) {
+  if (!containerRow || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const colors = ['#ffd166','#66d9ff','#9be564','#ff7ab6','#ffd1a9'];
+  const rect = containerRow.getBoundingClientRect();
+  const centerX = rect.left + rect.width/2;
+  const centerY = rect.top + rect.height/2;
+  for (let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.style.position='fixed';
+    el.style.width='8px'; el.style.height='8px';
+    el.style.background = colors[i%colors.length];
+    el.style.borderRadius='2px';
+    el.style.left = centerX + 'px';
+    el.style.top = centerY + 'px';
+    el.style.opacity = '1';
+    el.style.pointerEvents = 'none';
+    el.style.transform = `translate(0,0) rotate(${Math.random()*360}deg)`;
+    el.style.transition = `transform 900ms cubic-bezier(.2,.8,.2,1), opacity 900ms`;
+    document.body.appendChild(el);
+    // random trajectory
+    const dx = (Math.random()-0.5) * 300;
+    const dy = (Math.random()-0.8) * 300;
+    requestAnimationFrame(()=> {
+      el.style.transform = `translate(${dx}px, ${dy}px) rotate(${Math.random()*720}deg)`;
+      el.style.opacity = '0';
+    });
+    setTimeout(()=> el.remove(), 950);
+  }
+}
+
+/* Compact toggle */
+(function attachCompactToggle(){
+  const btn = document.getElementById("compactToggle");
+  const table = document.getElementById("guildTable");
+  if (!btn || !table) return;
+  btn.addEventListener("click", () => {
+    const isCompact = table.classList.toggle("table-compact");
+    btn.setAttribute("aria-pressed", String(isCompact));
+    btn.textContent = isCompact ? "Normal" : "Compact";
+  });
+})();
+
+/* Winners strip toggle */
+(function attachToggle(){
   const btn = document.getElementById("toggleWinners");
   const container = document.getElementById("winnersContainer");
   if (!btn || !container) return;
@@ -505,17 +566,10 @@ function renderWinnersStrip() {
   });
 })();
 
-// helpers
-function extractLeadingNumber(text) {
-  if (!text) return 0;
-  const m = text.replace(/[,+]/g, "").match(/-?\d+(\.\d+)?/);
-  return m ? Number(m[0]) : 0;
-}
+/* Expose a simple revert helper (for your convenience) */
+/* If you ask to revert, I'll use the most recently provided full HTML you gave me as the baseline. */
+/* (No automatic action here — this comment documents the plan you requested.) */
 
-function escapeHtml(str) {
-  if (typeof str !== "string") return "";
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
 </script>
 </body>
 </html>
