@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SWGOH Counter Drag & Drop</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; padding:20px; }
+  #drop { border: 3px dashed #888; padding:30px; text-align:center; color:#666; }
+  #drop.drag { border-color:#2a9; color:#2a9; background:#f7fff7; }
+  .team { margin-top:20px; display:flex; gap:10px; }
+  .toon { width:96px; text-align:center; }
+  .toon img { width:96px; height:96px; object-fit:cover; border-radius:8px; }
+</style>
+</head>
+<body>
+
+<h3>SWGOH Counter Finder (Top team)</h3>
+<p><strong>Drop a character image here</strong> (or click to pick a file). The page will identify the character by filename or data attribute and show the top 5 counter toons.</p>
+
+<div id="drop">Drop character image here or click to choose<br><small>Filename or data-char should match keys in the mapping (case-insensitive)</small></div>
+<input id="file" type="file" accept="image/*" style="display:none" />
+
+<div id="result"></div>
+
+<script>
+// Example mapping: key = normalized character name -> array of 5 toon names and image URLs
+// Replace or populate this object from your scraped SWGOH.GG data (server-side).
+const counters = {
+  "rey": [
+    {name:"Bastila Shan (Fallen)", img:"https://example.com/bastila.png"},
+    {name:"Jedi Knight Revan", img:"https://example.com/revan.png"},
+    {name:"Sith Triumvirate", img:"https://example.com/sith.png"},
+    {name:"Grand Admiral Thrawn", img:"https://example.com/thrawn.png"},
+    {name:"Darth Vader", img:"https://example.com/vader.png"}
+  ],
+  "luke": [
+    {name:"Rex", img:"https://example.com/rex.png"},
+    {name:"Ahsoka", img:"https://example.com/ahsoka.png"},
+    {name:"Hera", img:"https://example.com/hera.png"},
+    {name:"Kanan", img:"https://example.com/kanan.png"},
+    {name:"Ezra", img:"https://example.com/ezra.png"}
+  ]
+};
+
+const drop = document.getElementById('drop');
+const fileInput = document.getElementById('file');
+const result = document.getElementById('result');
+
+function normalizeName(s){ return (s||'').toLowerCase().replace(/\.[^.]+$/,'').replace(/[^a-z0-9]+/g,'').trim(); }
+
+drop.addEventListener('click', ()=>fileInput.click());
+fileInput.addEventListener('change', e=>handleFiles(e.target.files));
+
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.add('drag'); }));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.remove('drag'); }));
+drop.addEventListener('drop', e=>handleFiles(e.dataTransfer.files));
+
+function handleFiles(files){
+  if(!files || files.length===0) return;
+  const f = files[0];
+  const nameKey = normalizeName(f.name);
+  showCharacterFromKey(nameKey);
+}
+
+function showCharacterFromKey(key){
+  result.innerHTML = '';
+  const found = counters[key];
+  if(!found){
+    result.innerHTML = `<p><strong>No top-team mapping found for "${key}".</strong> Update the mapping object with the SWGOH.GG data.</p>`;
+    return;
+  }
+  const container = document.createElement('div');
+  container.className = 'team';
+  found.forEach(t=>{
+    const d = document.createElement('div'); d.className='toon';
+    d.innerHTML = `<img src="${t.img}" alt="${t.name}"><div><strong>${t.name}</strong></div>`;
+    container.appendChild(d);
+  });
+  result.appendChild(container);
+}
+</script>
+</body>
+</html>
