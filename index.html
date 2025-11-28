@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Chewbooty Guild Roster — Modern Dark</title>
 <style>
-  /* Dark theme variables */
+  /* Theme variables */
   :root{
-    --bg-1:#0b0b0c;
-    --bg-2:#0f1112;
-    --panel:#151617;
-    --panel-2:#0e0f10;
+    --bg-1:#070708;
+    --bg-2:#0d0e10;
+    --panel:#121214;
+    --panel-2:#0b0b0c;
     --muted:#9aa4ad;
     --accent:#ffd700;
     --success:#2ecc71;
@@ -18,22 +18,21 @@
     --link:#66c2ff;
     --glass: rgba(255,255,255,0.02);
     --radius:12px;
-    --shadow: 0 12px 36px rgba(0,0,0,0.7);
+    --shadow: 0 14px 40px rgba(0,0,0,0.75);
     --focus: rgba(102,194,255,0.14);
-    --transition: 180ms cubic-bezier(.2,.9,.2,1);
+    --transition: 200ms cubic-bezier(.2,.9,.2,1);
     --mono: "Segoe UI Mono", "Roboto Mono", monospace;
   }
 
-  /* Base layout */
   html,body{height:100%}
   body{
-    margin:20px;
+    margin:22px;
     font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
     background: linear-gradient(180deg,var(--bg-1),var(--bg-2));
     color:#e8eef2;
     -webkit-font-smoothing:antialiased;
     -moz-osx-font-smoothing:grayscale;
-    line-height:1.35;
+    line-height:1.36;
   }
 
   header{
@@ -42,7 +41,7 @@
     align-items:flex-start;
     justify-content:space-between;
     flex-wrap:wrap;
-    margin-bottom:14px;
+    margin-bottom:16px;
   }
 
   h1{
@@ -60,29 +59,29 @@
     gap:12px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));
     border-radius:var(--radius);
-    padding:10px;
+    padding:12px;
     border:1px solid rgba(255,255,255,0.03);
     box-shadow:var(--shadow);
-    min-width:360px;
+    min-width:380px;
     align-items:stretch;
     transition: transform var(--transition), box-shadow var(--transition);
   }
 
   .winners-strip:hover{
     transform: translateY(-6px);
-    box-shadow: 0 22px 48px rgba(0,0,0,0.75);
+    box-shadow: 0 26px 56px rgba(0,0,0,0.8);
   }
 
-  .winners-col{ display:flex; flex-direction:column; gap:8px; min-width:0; flex:1; }
+  .winners-col{ display:flex; flex-direction:column; gap:10px; min-width:0; flex:1; }
 
-  .winners-title{ color:var(--accent); font-size:0.85rem; font-weight:700; }
+  .winners-title{ color:var(--accent); font-size:0.88rem; font-weight:700; }
 
   .winner-row{
     display:flex;
-    gap:10px;
+    gap:12px;
     align-items:center;
     background:var(--glass);
-    padding:8px;
+    padding:8px 10px;
     border-radius:10px;
     font-size:0.92rem;
     overflow:hidden;
@@ -109,7 +108,7 @@
     background:transparent;
     border:1px solid rgba(255,255,255,0.06);
     color:inherit;
-    padding:8px 10px;
+    padding:8px 12px;
     border-radius:10px;
     cursor:pointer;
     font-size:0.92rem;
@@ -119,7 +118,7 @@
   .btn:focus{ outline:3px solid var(--focus); outline-offset:2px; }
 
   /* Table area */
-  main{ margin-top:6px; }
+  main{ margin-top:8px; }
   .table-panel{
     background: linear-gradient(180deg,var(--panel),transparent);
     border-radius:14px;
@@ -177,7 +176,7 @@
   a{ color:var(--link); text-decoration:none; transition: color var(--transition), transform var(--transition); }
   a:hover{ color:#aee8ff; transform: translateY(-2px); text-decoration:underline; }
 
-  /* cell hover highlight for numeric cells */
+  /* numeric cell hover highlight */
   tbody td[data-cur]:hover{ background: rgba(102,194,255,0.03); box-shadow: inset 0 0 0 1px rgba(102,194,255,0.02); }
 
   /* medal hover glow */
@@ -249,13 +248,9 @@
   </main>
 
 <script>
-/*
-  Modernized JS:
-  - Async/await CSV loading
-  - Robust CSV parsing
-  - Intl.NumberFormat for consistent formatting
-  - Sorting, top-3 emoji awards, winners strip rendering
-  - Hover-friendly interactions preserved
+/* Behavior preserved: page loads ChewbootyOld.csv and Chewbooty.csv via FILES array.
+   Sorting, top-3 emoji awards, winners strip, and toggle control remain unchanged.
+   Hover effects and modern styling are purely visual.
 */
 
 const FILES = ["ChewbootyOld.csv","Chewbooty.csv"];
@@ -271,8 +266,8 @@ async function loadFiles(files){
 }
 
 function parseCSV(text){
-  if (!text) return { header:[], data:[] };
-  const lines = text.replace(/\r\n/g,"\n").replace(/\r/g,"\n").split("\n").filter(l => l.trim() !== "");
+  if (!text) return { header: [], data: [] };
+  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n").filter(l => l.trim() !== "");
   const rows = lines.map(line => {
     const out = [];
     let cur = "", inQuote = false;
