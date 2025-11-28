@@ -5,7 +5,29 @@
   <title>Chewbooty Roster</title>
   <style>
     body { font-family: Arial, sans-serif; background:#1c1c1c; color:#f0f0f0; margin:20px; }
-    h1 { text-align:center; color:#ffd700; }
+    h1 { text-align:center; color:#ffd700; margin-top:8px; }
+    /* Winners panel top-left */
+    .winners-panel {
+      position:fixed;
+      top:20px;
+      left:20px;
+      width:260px;
+      background:linear-gradient(180deg,#2b2b2b,#232323);
+      border:1px solid #444;
+      padding:10px;
+      border-radius:8px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.6);
+      z-index:1000;
+      color:#f0f0f0;
+    }
+    .winners-panel h3 { margin:4px 0 8px 0; font-size:14px; color:#ffd700; text-align:left; }
+    .category { margin-bottom:8px; font-size:13px; }
+    .category .title { color:#ccc; display:block; margin-bottom:6px; font-weight:600; }
+    .medal-row { display:flex; align-items:center; gap:8px; margin:2px 0; }
+    .medal-emoji { width:22px; text-align:center; font-size:16px; }
+    .medal-name { flex:1; color:#e8e8e8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .medal-value { color:#bbb; font-size:12px; margin-left:6px; }
+    /* Table */
     table { width:100%; border-collapse:collapse; margin-top:20px; background:#2a2a2a; }
     th, td { border:1px solid #444; padding:6px 8px; text-align:center; vertical-align:middle; }
     th { background:#333; color:#ffd700; cursor:pointer; position:sticky; top:0; }
@@ -20,10 +42,26 @@
     @media (max-width:900px) {
       table { font-size:13px; }
       th, td { padding:6px; }
+      .winners-panel { width:200px; top:12px; left:12px; padding:8px; }
     }
   </style>
 </head>
 <body>
+  <!-- Winners panel (top-left) -->
+  <div id="winnersPanel" class="winners-panel" aria-live="polite">
+    <h3>Recent Growth Winners</h3>
+    <div id="winnersContent">
+      <div class="category" id="gpGrowth">
+        <span class="title">Total GP Growth</span>
+        <div class="medal-row"><span class="medal-emoji">—</span><span class="medal-name">No data</span><span class="medal-value"></span></div>
+      </div>
+      <div class="category" id="scoreGrowth">
+        <span class="title">Total Score Growth</span>
+        <div class="medal-row"><span class="medal-emoji">—</span><span class="medal-name">No data</span><span class="medal-value"></span></div>
+      </div>
+    </div>
+  </div>
+
   <h1>Chewbooty Guild Roster</h1>
 
   <table id="guildTable">
@@ -111,12 +149,14 @@ function renderComparison(oldText, newText) {
   newer.data.forEach(row => {
     const allyNew = (row[newMap["AllyCode"]] || "").trim();
     let oldRow = null;
-    if (allyNew) {
+    if (allyNew && oldMap["AllyCode"] !== undefined) {
       oldRow = old.data.find(r => (r[oldMap["AllyCode"]]||"").trim() === allyNew);
     }
     if (!oldRow) {
       const nameNew = (row[newMap["Name"]] || "").trim();
-      oldRow = old.data.find(r => (r[oldMap["Name"]]||"").trim() === nameNew);
+      if (oldMap["Name"] !== undefined) {
+        oldRow = old.data.find(r => (r[oldMap["Name"]]||"").trim() === nameNew);
+      }
     }
 
     // current values
@@ -241,6 +281,7 @@ function renderComparison(oldText, newText) {
 
   makeSortable();
   addTopThreeEmojis();
+  renderWinnersPanel(); // update the top-left graphic
 }
 
 function makeSortable() {
@@ -271,7 +312,7 @@ function sortTable(col) {
   rows.forEach(r => table.tBodies[0].appendChild(r));
 }
 
-// Rank and decorate top 3 with emojis
+// Rank and decorate top 3 with emojis (only for Total GP Growth and Total Score Growth)
 function addTopThreeEmojis() {
   const table = document.getElementById("guildTable");
   const rows = Array.from(table.tBodies[0].rows);
@@ -288,24 +329,75 @@ function addTopThreeEmojis() {
     const ranked = rows.map(r => {
       const cell = r.cells[idx];
       const diff = Number(cell.getAttribute("data-diff") || 0);
-      return { cell, diff };
+      const name = r.cells[0].innerText || "";
+      return { cell, diff, name };
     })
     .filter(e => e.diff > 0) // only positive changes
     .sort((a, b) => b.diff - a.diff);
 
     ranked.slice(0, 3).forEach((entry, rank) => {
-      // append emoji next to the current score (do not duplicate if already present)
-      // simple check: if emoji already present, skip
       const emoji = emojis[rank];
       if (!entry.cell.innerHTML.includes(emoji)) {
         entry.cell.innerHTML = entry.cell.innerHTML + " " + emoji;
       }
     });
+
+    return ranked.slice(0, 3); // return top entries for panel rendering
   }
 
-  // Only award medals for Total GP and Total Score, based on their positive change
-  awardByDiff(TOTAL_GP_IDX);
-  awardByDiff(TOTAL_SCORE_IDX);
+  // Clear any previous emojis in those columns first (to avoid duplicates on re-render)
+  rows.forEach(r => {
+    [TOTAL_GP_IDX, TOTAL_SCORE_IDX].forEach(idx => {
+      const cell = r.cells[idx];
+      if (cell) {
+        // remove medal emojis if present (simple replace)
+        cell.innerHTML = cell.innerHTML.replace(/ 🥇| 🥈| 🥉/g, "");
+      }
+    });
+  });
+
+  // Award and capture winners
+  const gpWinners = awardByDiff(TOTAL_GP_IDX);
+  const scoreWinners = awardByDiff(TOTAL_SCORE_IDX);
+
+  // Save winners data on the table element for the winners panel to read
+  const tableEl = document.getElementById("guildTable");
+  tableEl._gpWinners = gpWinners;
+  tableEl._scoreWinners = scoreWinners;
+}
+
+// Render the small graphic at top-left listing medal winners for the two categories
+function renderWinnersPanel() {
+  const tableEl = document.getElementById("guildTable");
+  const gpWinners = tableEl._gpWinners || [];
+  const scoreWinners = tableEl._scoreWinners || [];
+
+  const gpContainer = document.getElementById("gpGrowth");
+  const scoreContainer = document.getElementById("scoreGrowth");
+
+  function renderCategory(container, winners, valueLabel) {
+    // clear existing rows
+    container.querySelectorAll(".medal-row").forEach(n => n.remove());
+    if (!winners.length) {
+      const row = document.createElement("div");
+      row.className = "medal-row";
+      row.innerHTML = `<span class="medal-emoji">—</span><span class="medal-name">No positive growth</span><span class="medal-value"></span>`;
+      container.appendChild(row);
+      return;
+    }
+    winners.forEach((w, i) => {
+      const row = document.createElement("div");
+      row.className = "medal-row";
+      const emoji = i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉";
+      const nameText = (w.name || "").trim() || "Unknown";
+      const valueText = (typeof w.diff === "number") ? (w.diff > 0 ? `+${Number(w.diff).toLocaleString()}` : `${Number(w.diff).toLocaleString()}`) : "";
+      row.innerHTML = `<span class="medal-emoji">${emoji}</span><span class="medal-name" title="${escapeHtml(nameText)}">${escapeHtml(nameText)}</span><span class="medal-value">${escapeHtml(valueText)}</span>`;
+      container.appendChild(row);
+    });
+  }
+
+  renderCategory(gpContainer, gpWinners, "GP");
+  renderCategory(scoreContainer, scoreWinners, "Score");
 }
 
 // helpers
