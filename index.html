@@ -19,45 +19,27 @@
       --badge-3: linear-gradient(90deg,#d6f7d6,#9be564);
     }
 
-    /* Base layout */
     body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background:var(--bg); color:#f3f3f3; margin:20px; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
     header { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:12px; }
     h1 { margin:0; color:var(--accent); font-size:20px; text-align:left; letter-spacing:0.2px; }
 
-    /* Winners strip (inline, collapsible) */
     .winners-strip {
-      display:flex;
-      gap:12px;
-      align-items:stretch;
+      display:flex; gap:12px; align-items:stretch;
       background:linear-gradient(180deg,var(--panel),var(--panel-2));
-      border:1px solid rgba(255,255,255,0.04);
-      padding:8px;
-      border-radius:8px;
-      box-shadow:0 6px 18px var(--shadow);
-      color:#f0f0f0;
-      min-width:0;
-      flex:1 1 420px;
-      backdrop-filter: blur(4px);
+      border:1px solid rgba(255,255,255,0.04); padding:8px; border-radius:8px; box-shadow:0 6px 18px var(--shadow);
+      color:#f0f0f0; min-width:0; flex:1 1 420px; backdrop-filter: blur(4px);
     }
     .winners-col { display:flex; flex-direction:column; gap:6px; min-width:0; flex:1; }
     .winners-title { color:var(--accent); font-size:13px; margin:0 0 4px 0; font-weight:600; }
-    .winner-row {
-      display:flex; align-items:center; gap:8px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-      padding:6px 8px; border-radius:6px; font-size:13px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
-      transition: transform 160ms ease, background 160ms ease;
-    }
+    .winner-row { display:flex; align-items:center; gap:8px; background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)); padding:6px 8px; border-radius:6px; font-size:13px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; transition: transform 160ms ease, background 160ms ease; }
     .winner-row:hover { transform: translateY(-3px); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)); }
     .medal { width:22px; text-align:center; font-size:14px; color:#111; }
     .winner-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#e8e8e8; }
     .winner-val { color:var(--muted); font-size:12px; margin-left:6px; }
 
     .winners-controls { display:flex; align-items:center; gap:8px; }
-    .toggle-btn {
-      background:transparent; border:1px solid rgba(255,255,255,0.04); color:#f0f0f0; padding:6px 8px; border-radius:6px; cursor:pointer; font-size:13px;
-    }
+    .toggle-btn { background:transparent; border:1px solid rgba(255,255,255,0.04); color:#f0f0f0; padding:6px 8px; border-radius:6px; cursor:pointer; font-size:13px; }
 
-    /* Table */
     table { width:100%; border-collapse:collapse; margin-top:12px; background:linear-gradient(#161616,#141414); border-radius:6px; overflow:hidden; }
     thead th { border-bottom:1px solid rgba(255,255,255,0.04); }
     th, td { border:1px solid rgba(255,255,255,0.03); padding:8px 10px; text-align:center; vertical-align:middle; }
@@ -73,89 +55,38 @@
     .neg { color:var(--red); font-weight:700; margin-left:6px; }
     .zero { color:var(--muted); font-weight:700; margin-left:6px; }
 
-    /* Tabular numbers for numeric cells */
     td.num, th.num { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; }
 
-    /* compact mode helper (toggleable) */
     .table-compact th, .table-compact td { padding:6px 8px; font-size:13px; }
     .table-compact tbody tr { height:36px; }
 
-    /* Row lift + left accent bar */
     tbody tr { position:relative; transition: transform 180ms cubic-bezier(.2,.9,.2,1), box-shadow 180ms cubic-bezier(.2,.9,.2,1); }
-    tbody tr::before {
-      content:"";
-      position:absolute;
-      left:6px;
-      top:8px;
-      bottom:8px;
-      width:4px;
-      border-radius:4px;
-      background:transparent;
-      transition: background 160ms ease, width 160ms ease, left 160ms ease;
-      pointer-events:none;
-    }
+    tbody tr::before { content:""; position:absolute; left:6px; top:8px; bottom:8px; width:4px; border-radius:4px; background:transparent; transition: background 160ms ease, width 160ms ease, left 160ms ease; pointer-events:none; }
     tbody tr:hover, tbody tr:focus-within { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.6); z-index:1; }
     tbody tr:hover::before, tbody tr:focus-within::before { background: linear-gradient(180deg,var(--accent),var(--link)); width:6px; left:4px; }
 
-    /* Number pop effect */
     td.num { transition: transform 140ms ease, color 140ms ease; }
     tbody tr:hover td.num, tbody tr:focus-within td.num { transform: translateY(-2px); color:#ffffff; }
 
-    /* Tooltip microcard */
     .tooltip { position:relative; display:inline-block; }
-    .tooltip .tip {
-      position:absolute; left:50%; transform:translateX(-50%) translateY(8px); bottom:100%;
-      min-width:180px; background:#111; color:#fff; padding:8px; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.6);
-      opacity:0; pointer-events:none; transition:opacity 140ms ease, transform 140ms ease; font-size:13px; z-index:30;
-    }
+    .tooltip .tip { position:absolute; left:50%; transform:translateX(-50%) translateY(8px); bottom:100%; min-width:180px; background:#111; color:#fff; padding:8px; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.6); opacity:0; pointer-events:none; transition:opacity 140ms ease, transform 140ms ease; font-size:13px; z-index:30; }
     .tooltip:focus-within .tip, .tooltip:hover .tip { opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
     .tip .tip-row { display:flex; justify-content:space-between; gap:8px; margin:4px 0; }
     .tip .tip-row strong { color:var(--accent); font-weight:600; }
 
-    /* Ripple click feedback */
     .ripple { position:relative; overflow:hidden; }
-    .ripple .ripple-anim {
-      position:absolute; border-radius:50%; background:rgba(255,255,255,0.12);
-      transform: scale(0); animation: ripple 600ms ease-out forwards;
-      pointer-events:none;
-    }
+    .ripple .ripple-anim { position:absolute; border-radius:50%; background:rgba(255,255,255,0.12); transform: scale(0); animation: ripple 600ms ease-out forwards; pointer-events:none; }
     @keyframes ripple { to { transform: scale(4); opacity:0; } }
 
-    /* Sort indicator */
     th[data-sort-dir="asc"]::after { content:" ▲"; font-size:11px; color:#ddd; margin-left:6px; }
     th[data-sort-dir="desc"]::after { content:" ▼"; font-size:11px; color:#ddd; margin-left:6px; }
 
-    /* Themed badges (integrated, subtle) */
-    .badge {
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:4px 8px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:600;
-      color:#111;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-      margin-left:8px;
-      vertical-align:middle;
-    }
-    .badge .rank {
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:18px;
-      height:18px;
-      border-radius:50%;
-      font-size:11px;
-      font-weight:700;
-      color:#111;
-      background:rgba(255,255,255,0.9);
-    }
+    .badge { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:600; color:#111; box-shadow: 0 4px 10px rgba(0,0,0,0.35); margin-left:8px; vertical-align:middle; }
+    .badge .rank { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; font-size:11px; font-weight:700; color:#111; background:rgba(255,255,255,0.9); }
     .badge-1 { background: var(--badge-1); }
     .badge-2 { background: var(--badge-2); }
     .badge-3 { background: var(--badge-3); }
 
-    /* Respect reduced motion */
     @media (prefers-reduced-motion: reduce) {
       tbody tr, tbody tr::before, td.num, .winner-row { transition: none !important; transform: none !important; box-shadow: none !important; }
       .tooltip .tip { transition: none !important; transform: none !important; }
@@ -173,7 +104,6 @@
   <header>
     <h1>Chewbooty Guild Roster</h1>
 
-    <!-- Integrated winners strip: inline, non-blocking, collapsible -->
     <div style="display:flex; align-items:center; gap:12px; min-width:0;">
       <div id="winnersContainer" class="winners-strip" aria-live="polite">
         <div class="winners-col" id="gpGrowth">
@@ -217,10 +147,8 @@
   </table>
 
 <script>
-/* Files to fetch (must exist alongside this HTML) */
 const FILES = ["ChewbootyOld.csv","Chewbooty.csv"];
 
-/* Fetch CSVs and render */
 Promise.all(FILES.map(f => fetch(f).then(r => {
   if (!r.ok) throw new Error(`Failed to fetch ${f}: ${r.status}`);
   return r.text();
@@ -232,7 +160,6 @@ Promise.all(FILES.map(f => fetch(f).then(r => {
     tbody.innerHTML = `<tr><td colspan="14" style="color:#f88; text-align:center;">Error loading CSV files. Check console for details.</td></tr>`;
   });
 
-/* CSV parser (robust for quoted fields) */
 function parseCSV(csvText) {
   if (!csvText) return { header: [], data: [] };
   const lines = csvText.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n").filter(l => l.trim() !== "");
@@ -243,10 +170,10 @@ function parseCSV(csvText) {
       const ch = line[i], next = line[i+1];
       if (ch === '"' && inQuote && next === '"') { cur += '"'; i++; }
       else if (ch === '"') { inQuote = !inQuote; }
-      else if (ch === ',' && !inQuote) { out.push(cur.trim()); cur = ""; }
+      else if (ch === ',' && !inQuote) { out.push(cur); cur = ""; }
       else { cur += ch; }
     }
-    out.push(cur.trim());
+    out.push(cur);
     return out.map(c => c.replace(/^"|"$/g, "").trim());
   });
   const header = rows.length ? rows[0].map(h => h.replace(/^\uFEFF/, "").trim()) : [];
@@ -254,20 +181,79 @@ function parseCSV(csvText) {
   return { header, data };
 }
 
-/* Small helpers */
 function formatDiff(diff, decimals = 0) {
   const cls = diff > 0 ? "pos" : diff < 0 ? "neg" : "zero";
   const val = typeof diff === "number"
     ? (decimals > 0 ? diff.toFixed(decimals) : Number(diff).toLocaleString())
     : diff;
   const sign = (typeof diff === "number" && diff > 0) ? "+" : "";
-  return `<span class="${cls}">${sign}${val}</span>`;
+  const span = document.createElement("span");
+  span.className = cls;
+  span.textContent = sign + val;
+  return span;
 }
+
 function getIndexMap(header) { const map = {}; header.forEach((h,i)=>map[h]=i); return map; }
 function escapeHtml(str){ if (typeof str !== "string") return ""; return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function extractLeadingNumber(text){ if (!text) return 0; const m = text.replace(/[,+]/g,"").match(/-?\d+(\.\d+)?/); return m ? Number(m[0]) : 0; }
 
-/* Main render function (uses DOM creation to avoid parsing issues) */
+/* Build a td with safe DOM nodes (no innerHTML for content) */
+function buildNumericCell(current, old, diff, decimals = 0) {
+  const td = document.createElement("td");
+  td.className = "num";
+  td.appendChild(document.createTextNode(typeof current === "number" ? current.toLocaleString() : String(current)));
+  const oldSpan = document.createElement("span");
+  oldSpan.className = "oldVal";
+  oldSpan.textContent = `(${typeof old === "number" ? old.toLocaleString() : String(old)})`;
+  td.appendChild(document.createTextNode(" "));
+  td.appendChild(oldSpan);
+  td.appendChild(document.createTextNode(" "));
+  const diffSpan = formatDiff(diff, decimals);
+  td.appendChild(diffSpan);
+  return td;
+}
+
+function buildTextCell(text) {
+  const td = document.createElement("td");
+  td.textContent = text;
+  return td;
+}
+
+function buildTooltipCell(currentText, oldText, diff, tooltipRows = []) {
+  const td = document.createElement("td");
+  td.className = "num tooltip ripple";
+  td.setAttribute("data-cur", String(currentText));
+  td.setAttribute("data-diff", String(diff));
+  const main = document.createElement("span");
+  main.className = "cell-main";
+  main.textContent = currentText;
+  td.appendChild(main);
+  td.appendChild(document.createTextNode(" "));
+  const oldSpan = document.createElement("span");
+  oldSpan.className = "oldVal";
+  oldSpan.textContent = `(${oldText})`;
+  td.appendChild(oldSpan);
+  td.appendChild(document.createTextNode(" "));
+  td.appendChild(formatDiff(diff, typeof diff === "number" && String(diff).indexOf('.') !== -1 ? 2 : 0));
+
+  const tip = document.createElement("div");
+  tip.className = "tip";
+  tip.setAttribute("role","tooltip");
+  tooltipRows.forEach(r => {
+    const row = document.createElement("div");
+    row.className = "tip-row";
+    const strong = document.createElement("strong");
+    strong.textContent = r[0];
+    const span = document.createElement("span");
+    span.textContent = r[1];
+    row.appendChild(strong);
+    row.appendChild(span);
+    tip.appendChild(row);
+  });
+  td.appendChild(tip);
+  return td;
+}
+
 function renderComparison(oldText, newText) {
   const old = parseCSV(oldText);
   const newer = parseCSV(newText);
@@ -275,6 +261,8 @@ function renderComparison(oldText, newText) {
   const oldMap = getIndexMap(old.header);
   const tbody = document.querySelector("#guildTable tbody");
   tbody.innerHTML = "";
+
+  const headerCount = document.querySelectorAll("#guildTable thead th").length;
 
   newer.data.forEach(row => {
     const allyNew = (row[newMap["AllyCode"]] || "").trim();
@@ -287,7 +275,6 @@ function renderComparison(oldText, newText) {
       oldRow = old.data.find(r => (r[oldMap["Name"]]||"").trim() === nameNew);
     }
 
-    // current values
     const newCharGP = Number(row[newMap["CharacterGP"]] || 0);
     const newShipGP = Number(row[newMap["ShipGP"]] || 0);
     const newTotalGP = newCharGP + newShipGP;
@@ -300,7 +287,6 @@ function renderComparison(oldText, newText) {
     const newSpeed25 = Number(row[newMap["Speed25"]] || 0);
     const newGLs = Number(row[newMap["UltimateGLCount"]] || 0);
 
-    // old values
     const oldCharGP = oldRow ? Number(oldRow[oldMap["CharacterGP"]] || 0) : 0;
     const oldShipGP = oldRow ? Number(oldRow[oldMap["ShipGP"]] || 0) : 0;
     const oldTotalGP = oldCharGP + oldShipGP;
@@ -313,7 +299,6 @@ function renderComparison(oldText, newText) {
     const oldSpeed25 = oldRow ? Number(oldRow[oldMap["Speed25"]] || 0) : 0;
     const oldGLs = oldRow ? Number(oldRow[oldMap["UltimateGLCount"]] || 0) : 0;
 
-    // diffs
     const diffCharGP = newCharGP - oldCharGP;
     const diffShipGP = newShipGP - oldShipGP;
     const diffTotalGP = newTotalGP - oldTotalGP;
@@ -327,122 +312,75 @@ function renderComparison(oldText, newText) {
     const diffGLs = newGLs - oldGLs;
 
     const playerName = (row[newMap["Name"]] || "").trim();
-    const playerLinkHtml = allyNew
-      ? `<a href="https://swgoh.gg/p/${encodeURIComponent(allyNew)}/" target="_blank" rel="noopener noreferrer">${escapeHtml(playerName)}</a>`
-      : escapeHtml(playerName);
-
-    // Create row and cells using DOM methods to ensure exact cell count/order
-    const tr = document.createElement("tr");
-
-    // Helper to create a td with optional classes and inner HTML
-    function makeTd(htmlContent, className) {
-      const td = document.createElement("td");
-      if (className) td.className = className;
-      td.innerHTML = htmlContent;
-      return td;
-    }
-
-    // 1: Name (left aligned) with data-name for sorting
     const tdName = document.createElement("td");
     tdName.style.textAlign = "left";
-    tdName.setAttribute("data-name", escapeHtml(playerName).toLowerCase());
-    tdName.innerHTML = playerLinkHtml;
+    tdName.setAttribute("data-name", playerName.toLowerCase());
+    if (allyNew) {
+      const a = document.createElement("a");
+      a.href = `https://swgoh.gg/p/${encodeURIComponent(allyNew)}/`;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = playerName;
+      tdName.appendChild(a);
+    } else {
+      tdName.textContent = playerName;
+    }
+
+    const tr = document.createElement("tr");
     tr.appendChild(tdName);
 
-    // 2: Character GP
-    tr.appendChild(makeTd(`${newCharGP.toLocaleString()} <span class="oldVal">(${oldCharGP.toLocaleString()})</span> ${formatDiff(diffCharGP,0)}`, "num"));
+    tr.appendChild(buildNumericCell(newCharGP, oldCharGP, diffCharGP, 0));
+    tr.appendChild(buildNumericCell(newShipGP, oldShipGP, diffShipGP, 0));
 
-    // 3: Ship GP
-    tr.appendChild(makeTd(`${newShipGP.toLocaleString()} <span class="oldVal">(${oldShipGP.toLocaleString()})</span> ${formatDiff(diffShipGP,0)}`, "num"));
+    tr.appendChild(buildTooltipCell(newTotalGP.toLocaleString(), oldTotalGP.toLocaleString(), diffTotalGP, [
+      ["Change", diffTotalGP > 0 ? `+${diffTotalGP.toLocaleString()}` : diffTotalGP.toLocaleString()],
+      ["Char GP", newCharGP.toLocaleString()],
+      ["Ship GP", newShipGP.toLocaleString()]
+    ]));
 
-    // 4: Total GP (tooltip + ripple + data attributes)
-    const tdTotalGP = document.createElement("td");
-    tdTotalGP.className = "num tooltip ripple";
-    tdTotalGP.setAttribute("data-cur", String(newTotalGP));
-    tdTotalGP.setAttribute("data-diff", String(diffTotalGP));
-    tdTotalGP.innerHTML = `<span class="cell-main">${newTotalGP.toLocaleString()}</span> <span class="oldVal">(${oldTotalGP.toLocaleString()})</span> ${formatDiff(diffTotalGP,0)}`;
-    // tooltip content
-    const tipGP = document.createElement("div");
-    tipGP.className = "tip";
-    tipGP.setAttribute("role","tooltip");
-    tipGP.innerHTML = `<div class="tip-row"><strong>Change</strong><span>${diffTotalGP>0?`+${diffTotalGP.toLocaleString()}`:diffTotalGP.toLocaleString()}</span></div>
-                       <div class="tip-row"><strong>Char GP</strong><span>${newCharGP.toLocaleString()}</span></div>
-                       <div class="tip-row"><strong>Ship GP</strong><span>${newShipGP.toLocaleString()}</span></div>`;
-    tdTotalGP.appendChild(tipGP);
-    tr.appendChild(tdTotalGP);
+    tr.appendChild(buildTextCell(row[newMap["LeagueId"]] || ""));
+    tr.appendChild(buildTextCell(row[newMap["SkillRating"]] || ""));
 
-    // 5: League
-    tr.appendChild(makeTd(escapeHtml(row[newMap["LeagueId"]] || "")));
+    tr.appendChild(buildNumericCell(newModScore, oldModScore, diffMod, 2));
+    tr.appendChild(buildNumericCell(newGearScore, oldGearScore, diffGear, 2));
 
-    // 6: SkillRating
-    tr.appendChild(makeTd(escapeHtml(row[newMap["SkillRating"]] || "")));
+    tr.appendChild(buildTooltipCell(newTotalScore.toFixed(2), oldTotalScore.toFixed(2), diffTotalScore, [
+      ["Change", diffTotalScore > 0 ? `+${diffTotalScore.toFixed(2)}` : diffTotalScore.toFixed(2)],
+      ["Mod", newModScore.toFixed(2)],
+      ["Gear", newGearScore.toFixed(2)]
+    ]));
 
-    // 7: Mod Score
-    tr.appendChild(makeTd(`${newModScore.toFixed(2)} <span class="oldVal">(${oldModScore.toFixed(2)})</span> ${formatDiff(diffMod,2)}`, "num"));
+    tr.appendChild(buildNumericCell(newZetas, oldZetas, diffZetas, 0));
+    tr.appendChild(buildNumericCell(newOmis, oldOmis, diffOmis, 0));
+    tr.appendChild(buildNumericCell(newSpeed20, oldSpeed20, diffSpeed20, 0));
+    tr.appendChild(buildNumericCell(newSpeed25, oldSpeed25, diffSpeed25, 0));
+    tr.appendChild(buildNumericCell(newGLs, oldGLs, diffGLs, 0));
 
-    // 8: Gear Score
-    tr.appendChild(makeTd(`${newGearScore.toFixed(2)} <span class="oldVal">(${oldGearScore.toFixed(2)})</span> ${formatDiff(diffGear,2)}`, "num"));
-
-    // 9: Total Score (tooltip + ripple + data attributes)
-    const tdTotalScore = document.createElement("td");
-    tdTotalScore.className = "num tooltip ripple";
-    tdTotalScore.setAttribute("data-cur", String(newTotalScore.toFixed(2)));
-    tdTotalScore.setAttribute("data-diff", String(diffTotalScore));
-    tdTotalScore.innerHTML = `<span class="cell-main">${newTotalScore.toFixed(2)}</span> <span class="oldVal">(${oldTotalScore.toFixed(2)})</span> ${formatDiff(diffTotalScore,2)}`;
-    const tipScore = document.createElement("div");
-    tipScore.className = "tip";
-    tipScore.setAttribute("role","tooltip");
-    tipScore.innerHTML = `<div class="tip-row"><strong>Change</strong><span>${diffTotalScore>0?`+${diffTotalScore.toFixed(2)}`:diffTotalScore.toFixed(2)}</span></div>
-                          <div class="tip-row"><strong>Mod</strong><span>${newModScore.toFixed(2)}</span></div>
-                          <div class="tip-row"><strong>Gear</strong><span>${newGearScore.toFixed(2)}</span></div>`;
-    tdTotalScore.appendChild(tipScore);
-    tr.appendChild(tdTotalScore);
-
-    // 10: Zetas
-    tr.appendChild(makeTd(`${newZetas} <span class="oldVal">(${oldZetas})</span> ${formatDiff(diffZetas,0)}`, "num"));
-
-    // 11: Omicrons
-    tr.appendChild(makeTd(`${newOmis} <span class="oldVal">(${oldOmis})</span> ${formatDiff(diffOmis,0)}`, "num"));
-
-    // 12: Speed20
-    tr.appendChild(makeTd(`${newSpeed20} <span class="oldVal">(${oldSpeed20})</span> ${formatDiff(diffSpeed20,0)}`, "num"));
-
-    // 13: Speed25
-    tr.appendChild(makeTd(`${newSpeed25} <span class="oldVal">(${oldSpeed25})</span> ${formatDiff(diffSpeed25,0)}`, "num"));
-
-    // 14: Ultimate GL
-    tr.appendChild(makeTd(`${newGLs} <span class="oldVal">(${oldGLs})</span> ${formatDiff(diffGLs,0)}`, "num"));
-
-    /* ---------------------------
-       NORMALIZE ROW CELL COUNT
-       Ensure each row has exactly the same number of <td> as headers.
-       This prevents accidental shifting when CSV parsing produced too few/many fields.
-       --------------------------- */
+    // Normalization: ensure exact number of cells as headers
     (function normalizeRowCells(trEl) {
-      const headerCount = document.querySelectorAll("#guildTable thead th").length;
-      // Append empty cells if too few
-      while (trEl.children.length < headerCount) {
+      const headerCountNow = headerCount;
+      while (trEl.children.length < headerCountNow) {
         const td = document.createElement("td");
-        td.innerHTML = "";
+        td.textContent = "";
         trEl.appendChild(td);
       }
-      // If too many, merge extras into the last expected cell
-      while (trEl.children.length > headerCount) {
+      while (trEl.children.length > headerCountNow) {
         const extra = trEl.removeChild(trEl.lastElementChild);
-        const lastIdx = headerCount - 1;
+        const lastIdx = headerCountNow - 1;
         const lastCell = trEl.children[lastIdx];
-        lastCell.innerHTML = lastCell.innerHTML + ' ' + extra.innerHTML;
+        // append a separator and the extra text content (preserve text only)
+        lastCell.appendChild(document.createTextNode(" "));
+        lastCell.appendChild(document.createTextNode(extra.textContent || ""));
       }
     })(tr);
 
-    // Append the fully-built and normalized row
     tbody.appendChild(tr);
   });
 
   makeSortable();
   addTopThreeBadges();
   renderWinnersStrip();
-  attachRippleHandler(); // ensure ripple click handler is attached
+  attachRippleHandler();
 }
 
 /* Sorting */
@@ -495,14 +433,13 @@ function sortTable(col, dir) {
   rows.forEach(r => table.tBodies[0].appendChild(r));
 }
 
-/* Replace medals with integrated themed badges */
+/* Badges (integrated) */
 function addTopThreeBadges() {
   const table = document.getElementById("guildTable");
   const rows = Array.from(table.tBodies[0].rows);
   const TOTAL_GP_IDX = 3;
   const TOTAL_SCORE_IDX = 8;
 
-  // Remove existing badges (if any)
   rows.forEach(r => {
     [TOTAL_GP_IDX, TOTAL_SCORE_IDX].forEach(idx => {
       const cell = r.cells[idx];
@@ -522,7 +459,6 @@ function addTopThreeBadges() {
     .filter(e => e.diff > 0)
     .sort((a,b) => b.diff - a.diff);
 
-    // create badges for top 3
     ranked.slice(0,3).forEach((entry, i) => {
       const badge = document.createElement('span');
       badge.className = 'badge badge-' + (i+1);
@@ -544,18 +480,16 @@ function addTopThreeBadges() {
   const gpWinners = awardByDiff(TOTAL_GP_IDX);
   const scoreWinners = awardByDiff(TOTAL_SCORE_IDX);
 
-  // Save winners for strip rendering
   table._gpWinners = gpWinners;
   table._scoreWinners = scoreWinners;
 
-  // Celebrate top winner(s) with a small confetti burst (respect reduced-motion)
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     if (gpWinners[0]) burstConfetti(gpWinners[0].row, 12);
     if (scoreWinners[0]) burstConfetti(scoreWinners[0].row, 12);
   }
 }
 
-/* Render winners inline strip (deduplicated, no repeated names) */
+/* Render winners strip without duplicates (dedupe across both categories) */
 function renderWinnersStrip() {
   const tableEl = document.getElementById("guildTable");
   const gpWinners = tableEl._gpWinners || [];
@@ -563,9 +497,24 @@ function renderWinnersStrip() {
   const gpContainer = document.getElementById("gpGrowth");
   const scoreContainer = document.getElementById("scoreGrowth");
 
-  // remove previous rows
   gpContainer.querySelectorAll(".winner-row").forEach(n => n.remove());
   scoreContainer.querySelectorAll(".winner-row").forEach(n => n.remove());
+
+  // Build a map of unique names to their best appearance per category
+  function uniqueList(winners) {
+    const seen = new Set();
+    const out = [];
+    winners.forEach((w) => {
+      const name = (w.name || "").trim() || "Unknown";
+      if (seen.has(name)) return;
+      seen.add(name);
+      out.push(w);
+    });
+    return out;
+  }
+
+  const uniqueGP = uniqueList(gpWinners);
+  const uniqueScore = uniqueList(scoreWinners);
 
   function renderCategory(container, winners) {
     if (!winners.length) {
@@ -575,18 +524,11 @@ function renderWinnersStrip() {
       container.appendChild(row);
       return;
     }
-
-    // Deduplicate by player name to avoid duplicates in the strip
-    const seen = new Set();
     winners.forEach((w, i) => {
       const nameText = (w.name || "").trim() || "Unknown";
-      if (seen.has(nameText)) return; // skip duplicates
-      seen.add(nameText);
-
+      const valueText = (typeof w.diff === "number") ? (w.diff > 0 ? `+${Number(w.diff).toLocaleString()}` : `${Number(w.diff).toLocaleString()}`) : "";
       const row = document.createElement("div");
       row.className = "winner-row";
-
-      // small inline badge
       const badgeEl = document.createElement('span');
       badgeEl.className = 'badge badge-' + (i+1);
       const rank = document.createElement('span');
@@ -598,17 +540,12 @@ function renderWinnersStrip() {
       badgeEl.appendChild(rank);
       badgeEl.appendChild(document.createTextNode(' '));
       badgeEl.appendChild(label);
-
       const nameDiv = document.createElement('div');
       nameDiv.className = 'winner-name';
       nameDiv.textContent = nameText;
-
       const valDiv = document.createElement('div');
       valDiv.className = 'winner-val';
-      const valueText = (typeof w.diff === "number") ? (w.diff > 0 ? `+${Number(w.diff).toLocaleString()}` : `${Number(w.diff).toLocaleString()}`) : "";
       valDiv.textContent = valueText;
-
-      // Append badge, name, and value — badge is decorative and unique per rank
       row.appendChild(badgeEl);
       row.appendChild(nameDiv);
       row.appendChild(valDiv);
@@ -616,11 +553,11 @@ function renderWinnersStrip() {
     });
   }
 
-  renderCategory(gpContainer, gpWinners);
-  renderCategory(scoreContainer, scoreWinners);
+  renderCategory(gpContainer, uniqueGP);
+  renderCategory(scoreContainer, uniqueScore);
 }
 
-/* Ripple click handler for cells with class 'ripple' */
+/* Ripple handler */
 function attachRippleHandler() {
   const table = document.getElementById("guildTable");
   if (!table._rippleAttached) {
@@ -642,7 +579,7 @@ function attachRippleHandler() {
   }
 }
 
-/* Confetti burst (lightweight) */
+/* Confetti */
 function burstConfetti(containerRow, count=18) {
   if (!containerRow || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const colors = ['#ffd166','#66d9ff','#9be564','#ff7ab6','#ffd1a9'];
@@ -696,7 +633,6 @@ function burstConfetti(containerRow, count=18) {
     btn.setAttribute("aria-expanded", String(isHidden));
   });
 })();
-
 </script>
 </body>
 </html>
