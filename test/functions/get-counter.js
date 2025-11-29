@@ -20,7 +20,7 @@ exports.handler = async (event) => {
         }
 
         // 1. Construct the detailed prompt for the AI
-        const prompt = `Act as an expert Star Wars Galaxy of Heroes player and SWGOH.GG counter database. For the character "${character}", provide a highly effective, high-banner, 5v5 Grand Arena Championship (GAC) counter team for their top-rated defensive team. Provide the counter in a clear Markdown table format with columns for 'Counter Team', 'Key Strategy', and 'Win Rate (Est)'.`;
+        const prompt = `Provide me with the top 10 teams to counter the top squads for "${character}". This list should be concise and not too detailed outside of full squad units and win %. You can draw information from swgoh.gg and other relevant indexed sites that are available.'.`;
 
         // 2. Call the Gemini API
         const response = await ai.models.generateContent({
