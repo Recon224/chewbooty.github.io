@@ -1,5 +1,12 @@
+# Netlify Configuration File
+
 [build]
-  # This tells Netlify where to look for the JavaScript file that handles the API call
-  functions = "functions"
-  # Since you are only using an index.html file, the publish directory is the root
+  # Confirms where the static files are (which fixed the last error)
   publish = "."
+
+# This explicitly defines the functions deployment settings
+[functions]
+  # This line tells Netlify where to find the 'get-counter.js' file
+  directory = "functions"
+  # Ensures a modern Node.js bundler is used for the Gemini SDK
+  node_bundler = "esbuild"
