@@ -69,6 +69,21 @@
             padding: 15px;
             border: 1px dashed #ccc;
         }
+
+        /* Basic table styling for the Markdown output */
+        #counter-output table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        #counter-output th, #counter-output td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        #counter-output th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
@@ -87,6 +102,11 @@
                 <span>GAS</span>
             </button>
             
+            <button class="character-icon" data-char="Grand Master Yoda">
+                <img src="https://swgoh.gg/static/img/assets/tex.charui_yoda_grandmaster.png" alt="Grand Master Yoda">
+                <span>GMY</span>
+            </button>
+
             </aside>
 
         <main class="results-display">
@@ -99,8 +119,90 @@
     </div>
 
     <script>
-        // We will add the code here in the next step!
-    </script>
+        // Utility to convert the AI's Markdown table output to HTML
+        function markdownToHtml(markdown) {
+            let html = markdown;
+            
+            // Convert simple Markdown table header and rows to HTML table
+            html = html.replace(/^\|(.*)\|$/gm, (match) => {
+                const cells = match.split('|').map(c => c.trim()).filter(c => c.length > 0);
+                if (cells.length === 0) return '';
+                
+                // If it's the header separator row (e.g., |---|---|), ignore it
+                if (cells.every(c => c.match(/^-+$/))) return '</tr></thead><tbody><tr>'; 
 
-</body>
+                // Check if it's the first row (header)
+                if (!html.includes('<thead>')) {
+                    const headerRow = cells.map(c => `<th>${c}</th>`).join('');
+                    return `<table><thead><tr>${headerRow}</tr></thead><tbody>`;
+                }
+                
+                // Otherwise, it's a data row
+                const dataRow = cells.map(c => `<td>${c}</td>`).join('');
+                return `<tr>${dataRow}</tr>`;
+            });
+
+            // Clean up: remove header separator line and close table
+            html = html.replace('</tr></thead><tbody><tr>', '</tr></thead><tbody>');
+            if (html.includes('<table>')) {
+                html += '</tbody></table>';
+            }
+
+            // Convert bold text (**text**) to <strong>
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            return html;
+        }
+
+        const icons = document.querySelectorAll('.character-icon');
+        const outputDiv = document.getElementById('counter-output');
+        
+        // !!! IMPORTANT: This URL must match your Serverless Function endpoint
+        // Netlify/Vercel often use this simple path to proxy the function.
+        const SERVERLESS_ENDPOINT = "/.netlify/functions/get-counter"; 
+
+        async function findCounter(event) {
+            event.preventDefault(); 
+            const characterName = event.currentTarget.getAttribute('data-char');
+            
+            // Loading state
+            outputDiv.innerHTML = `<p>Searching for the best GAC counter to **${characterName}'s** main defensive team...</p><p><em>This may take a few seconds as the AI processes the data...</em></p>`;
+
+            try {
+                // Fetch request to the secure serverless proxy
+                const response = await fetch(SERVERLESS_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        character: characterName,
+                        context: "SWGOH GAC 5v5 counter" 
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Convert AI's Markdown table to HTML and display it
+                const htmlOutput = markdownToHtml(data.result);
+                
+                outputDiv.innerHTML = `<h3>Best Counter for ${characterName}:</h3>${htmlOutput}`;
+
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                outputDiv.innerHTML = `<p style="color: red;">Error: Could not retrieve counter data. Please check your network and ensure your serverless function is deployed correctly.</p>`;
+            }
+        }
+
+        // Attach the same click handler to all icon buttons
+        icons.forEach(icon => {
+            icon.addEventListener('click', findCounter);
+        });
+
+    </script>
+    </body>
 </html>
