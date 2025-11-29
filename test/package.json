@@ -4,6 +4,6 @@
   "description": "Backend proxy for Gemini API call",
   "main": "functions/get-counter.js",
   "dependencies": {
-    "@google/genai": "^0.1.0"
+    "@google/genai": "latest"
   }
 }
