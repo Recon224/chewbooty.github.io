@@ -388,6 +388,7 @@ function createRowHTML(data){
   `;
 }
 
+/* Updated addTopThreeEmojis: store plain winner objects {name, diff} for the winners strip */
 function addTopThreeEmojis(){
   const table = document.getElementById("guildTable");
   const rows = Array.from(table.tBodies[0].rows);
@@ -395,32 +396,44 @@ function addTopThreeEmojis(){
   const TOTAL_GP_IDX = 3;
   const TOTAL_SCORE_IDX = 8;
 
+  // Clear any previous emojis in those columns first (to avoid duplicates on re-render)
   rows.forEach(r => {
-    [TOTAL_GP_IDX, TOTAL_SCORE_IDX].forEach(i => {
-      const c = r.cells[i];
-      if (c) c.innerHTML = c.innerHTML.replace(/ 🥇| 🥈| 🥉/g,"");
+    [TOTAL_GP_IDX, TOTAL_SCORE_IDX].forEach(idx => {
+      const cell = r.cells[idx];
+      if (cell) {
+        cell.innerHTML = cell.innerHTML.replace(/ 🥇| 🥈| 🥉/g, "");
+      }
     });
   });
 
-  function award(idx){
+  // Helper to compute winners and return plain objects
+  function computeWinners(idx) {
     const ranked = rows.map(r => {
       const cell = r.cells[idx];
-      const diff = Number(cell.getAttribute("data-diff") || 0);
-      const name = r.cells[0].innerText || "";
+      const diffAttr = cell && cell.getAttribute ? cell.getAttribute("data-diff") : null;
+      const diff = diffAttr !== null ? Number(diffAttr || 0) : 0;
+      const name = (r.cells[0] && (r.cells[0].innerText || "")).trim();
       return { cell, diff, name };
-    }).filter(e => e.diff > 0).sort((a,b) => b.diff - a.diff);
+    })
+    .filter(e => e.diff > 0) // only positive changes
+    .sort((a, b) => b.diff - a.diff);
 
-    ranked.slice(0,3).forEach((entry, i) => {
-      const emoji = emojis[i];
-      if (!entry.cell.innerHTML.includes(emoji)) entry.cell.innerHTML += " " + emoji;
+    // award emojis visually in the table cells
+    ranked.slice(0, 3).forEach((entry, rank) => {
+      const emoji = emojis[rank];
+      if (entry.cell && !entry.cell.innerHTML.includes(emoji)) {
+        entry.cell.innerHTML = entry.cell.innerHTML + " " + emoji;
+      }
     });
 
-    return ranked.slice(0,3);
+    // return plain objects for winners strip rendering
+    return ranked.slice(0, 3).map(e => ({ name: e.name, diff: e.diff }));
   }
 
-  const gpWinners = award(TOTAL_GP_IDX);
-  const scoreWinners = award(TOTAL_SCORE_IDX);
+  const gpWinners = computeWinners(TOTAL_GP_IDX);
+  const scoreWinners = computeWinners(TOTAL_SCORE_IDX);
 
+  // Save winners data on the table element for the winners strip to read
   table._gpWinners = gpWinners;
   table._scoreWinners = scoreWinners;
 }
@@ -429,33 +442,35 @@ function renderWinnersStrip(){
   const tableEl = document.getElementById("guildTable");
   const gpWinners = tableEl._gpWinners || [];
   const scoreWinners = tableEl._scoreWinners || [];
+
   const gpContainer = document.getElementById("gpGrowth");
   const scoreContainer = document.getElementById("scoreGrowth");
 
+  // clear existing rows (keep title)
   gpContainer.querySelectorAll(".winner-row").forEach(n => n.remove());
   scoreContainer.querySelectorAll(".winner-row").forEach(n => n.remove());
 
-  function renderCategory(container, winners){
-    if (!winners.length){
+  function renderCategory(container, winners, valueLabel) {
+    if (!winners.length) {
       const row = document.createElement("div");
       row.className = "winner-row";
       row.innerHTML = `<div class="medal">—</div><div class="winner-name">No positive growth</div><div class="winner-val"></div>`;
       container.appendChild(row);
       return;
     }
-    winners.forEach((w,i) => {
+    winners.forEach((w, i) => {
       const row = document.createElement("div");
       row.className = "winner-row";
-      const emoji = i===0 ? "🥇" : i===1 ? "🥈" : "🥉";
+      const emoji = i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉";
       const nameText = (w.name || "").trim() || "Unknown";
-      const valueText = (typeof w.diff === "number") ? (w.diff > 0 ? `+${nf.format(w.diff)}` : nf.format(w.diff)) : "";
+      const valueText = (typeof w.diff === "number") ? (w.diff > 0 ? `+${Number(w.diff).toLocaleString()}` : `${Number(w.diff).toLocaleString()}`) : "";
       row.innerHTML = `<div class="medal">${emoji}</div><div class="winner-name" title="${escapeHtml(nameText)}">${escapeHtml(nameText)}</div><div class="winner-val">${escapeHtml(valueText)}</div>`;
       container.appendChild(row);
     });
   }
 
-  renderCategory(gpContainer, gpWinners);
-  renderCategory(scoreContainer, scoreWinners);
+  renderCategory(gpContainer, gpWinners, "GP");
+  renderCategory(scoreContainer, scoreWinners, "Score");
 }
 
 function makeSortable(){
