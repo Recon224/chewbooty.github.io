@@ -20,7 +20,7 @@ exports.handler = async (event) => {
         }
 
         // 1. Construct the detailed prompt for the AI
-        const prompt = `Provide me with the top 10 teams to counter the top squads for "${character}". This list should be concise and not too detailed outside of full squad units and win %. You can draw information from swgoh.gg and other relevant indexed sites that are available.'.`;
+        const prompt = `Provide me with the top 10 teams to counter the top squads for "${character}". This list should be concise and in bullet point format with the win % next to each. You can draw information from swgoh.gg and other relevant indexed sites that are available.'.`;
 
         // 2. Call the Gemini API
         const response = await ai.models.generateContent({
